@@ -90,12 +90,6 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
 
-    // JSON serialization library, works with the Kotlin serialization plugin
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-
-    // OkHttp
-    implementation("com.squareup.okhttp3:okhttp:5.1.0")
-
     // Hilt
     implementation("com.google.dagger:hilt-android:2.57")
     ksp("com.google.dagger:hilt-android-compiler:2.57")
@@ -106,5 +100,16 @@ dependencies {
 
     // Coil 2.x 版本（适用于现代 Compose 项目）
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // Document file
+    implementation("androidx.documentfile:documentfile:1.1.0")
+
+    // Retrofit（核心）
+    val retrofitVersion = "3.0.0"
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    // Gson 解析（根据数据格式选择，也可替换为 Moshi、Jackson 等）
+    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+    // OkHttp 日志拦截器（调试用）
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
 }
