@@ -34,6 +34,8 @@ class MainViewModel @Inject constructor(
             AppPrefKeys.getServerToken(context).collect { token ->
                 _isLoggedIn.value = token.isNotBlank()
             }
+        }
+        viewModelScope.launch {
             AppPrefKeys.getSelectedAlbums(context).collect { _selectedAlbums.value = it }
         }
     }
