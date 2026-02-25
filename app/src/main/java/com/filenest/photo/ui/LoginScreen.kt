@@ -9,16 +9,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.filenest.photo.viewmodel.MainViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavHostController) {
     val viewModel: MainViewModel = hiltViewModel()
 
-    var serverUrl by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var serverUrl by remember { mutableStateOf("http://192.168.1.1:8080") }
+    var username by remember { mutableStateOf("admin") }
+    var password by remember { mutableStateOf("123456") }
     var isLoading by remember { mutableStateOf(false) }
 
     val isValidInput = serverUrl.isNotBlank() && username.isNotBlank() && password.isNotBlank()
