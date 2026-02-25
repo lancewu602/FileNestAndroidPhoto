@@ -117,7 +117,8 @@ fun SwitchTogglePair(title: String, checked: Boolean, onToggle: (Boolean) -> Uni
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(title, style = MaterialTheme.typography.bodyMedium)
         Switch(checked = checked, onCheckedChange = onToggle)
