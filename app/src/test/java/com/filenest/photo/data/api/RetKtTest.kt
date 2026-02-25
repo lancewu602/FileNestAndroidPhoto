@@ -23,7 +23,7 @@ class RetKtTest {
     @DisplayName("isRetOk should return false when code is not 200")
     fun `isRetOk should return false when code is not 200`() {
         // Given
-        val ret = Ret<Any?>(code = 400, message = "Bad Request")
+        val ret = Ret(code = 400, message = "Bad Request")
 
         // When
         val result = isRetOk(ret)
