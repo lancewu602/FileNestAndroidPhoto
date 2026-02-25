@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 val Context.dataStore by preferencesDataStore(name = "app_prefs_001")
 
@@ -18,6 +20,9 @@ object AppPrefKeys {
 
     // 服务器地址
     val SERVER_URL = stringPreferencesKey("server_url")
+
+    // 已选择的相册 bucketId 列表（JSON 格式）
+    val SELECTED_ALBUMS = stringPreferencesKey("selected_albums")
 
     suspend fun setUsername(context: Context, username: String) {
         context.dataStore.edit { settings ->
@@ -52,6 +57,23 @@ object AppPrefKeys {
     fun getServerUrl(context: Context): Flow<String> {
         return context.dataStore.data.map { settings ->
             settings[SERVER_URL] ?: ""
+        }
+    }
+
+    fun getSelectedAlbums(context: Context): Flow<Set<Long>> {
+        return context.dataStore.data.map { settings ->
+            val jsonString = settings[SELECTED_ALBUMS] ?: return@map emptySet()
+            try {
+                Json.decodeFromString<List<Long>>(jsonString).toSet()
+            } catch (e: Exception) {
+                emptySet()
+            }
+        }
+    }
+
+    suspend fun setSelectedAlbums(context: Context, albums: Set<Long>) {
+        context.dataStore.edit { settings ->
+            settings[SELECTED_ALBUMS] = Json.encodeToString(albums.toList())
         }
     }
 
