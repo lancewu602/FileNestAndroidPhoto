@@ -103,7 +103,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
     // Coil
-    implementation("io.coil-kt:coil-compose:3.3.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     // Document file
     implementation("androidx.documentfile:documentfile:1.1.0")
