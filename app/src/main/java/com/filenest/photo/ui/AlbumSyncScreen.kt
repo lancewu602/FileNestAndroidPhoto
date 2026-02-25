@@ -50,18 +50,14 @@ fun AlbumSyncScreen(navController: androidx.navigation.NavHostController) {
     }
 
     LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val status = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_MEDIA_IMAGES
-            )
-            if (status == PackageManager.PERMISSION_GRANTED) {
-                viewModel.loadAlbums()
-            } else {
-                permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-            }
-        } else {
+        val status = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_MEDIA_IMAGES
+        )
+        if (status == PackageManager.PERMISSION_GRANTED) {
             viewModel.loadAlbums()
+        } else {
+            permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
         }
     }
 

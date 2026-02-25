@@ -77,11 +77,7 @@ class MainViewModel @Inject constructor(
                     MediaStore.Images.Media.BUCKET_ID,
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME
                 )
-                val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-                } else {
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                }
+                val collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
 
                 val albumMap = mutableMapOf<Long, String>()
 
