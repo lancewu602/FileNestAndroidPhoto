@@ -49,7 +49,7 @@ android {
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2025.05.00")
+    val composeBom = platform("androidx.compose:compose-bom:2026.02.00")
     implementation(composeBom)
 
     // Material Design 3
@@ -59,9 +59,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
-    // Constraintlayout
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
-
     // Material Design 图标库
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
@@ -69,46 +66,44 @@ dependencies {
     // window size utils 适配不同屏幕尺寸的工具类
     implementation("androidx.compose.material3.adaptive:adaptive")
 
+    // Constraintlayout
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
+
     // 在 Compose 中使用 ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
 
     // Navigation
-    val navigationVersion = "2.9.3"
-    implementation("androidx.navigation:navigation-compose:$navigationVersion")
-    implementation("androidx.navigation:navigation-fragment-ktx:$navigationVersion")
-    implementation("androidx.navigation:navigation-ui-ktx:$navigationVersion")
+    implementation("androidx.navigation:navigation-compose:2.9.7")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.7")
 
     // DataStore
-    val datastoreVersion = "1.1.7"
-    implementation("androidx.datastore:datastore:$datastoreVersion")
-    implementation("androidx.datastore:datastore-preferences:$datastoreVersion")
-    implementation("androidx.datastore:datastore-preferences-core:$datastoreVersion")
+    implementation("androidx.datastore:datastore:1.2.0")
+    implementation("androidx.datastore:datastore-preferences:1.2.0")
+    implementation("androidx.datastore:datastore-preferences-core:1.2.0")
 
     // Room 数据库
-    val roomVersion = "2.7.2"
-    implementation("androidx.room:room-runtime:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
+    ksp("androidx.room:room-compiler:2.8.4")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.57")
     ksp("com.google.dagger:hilt-android-compiler:2.57")
     ksp("com.google.dagger:hilt-compiler:2.57")
-
     // Hilt For Compose
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
-    // Coil 2.x 版本（适用于现代 Compose 项目）
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    // Coil
+    implementation("io.coil-kt:coil-compose:3.3.0")
 
     // Document file
     implementation("androidx.documentfile:documentfile:1.1.0")
 
-    // Retrofit（核心）
-    val retrofitVersion = "3.0.0"
-    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
-    // Gson 解析（根据数据格式选择，也可替换为 Moshi、Jackson 等）
-    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    // Gson 解析
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     // OkHttp 日志拦截器（调试用）
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 

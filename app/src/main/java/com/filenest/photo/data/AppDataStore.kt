@@ -10,27 +10,11 @@ import kotlinx.coroutines.flow.map
 val Context.dataStore by preferencesDataStore(name = "app_prefs_001")
 
 object AppPrefKeys {
-
-    // 后端服务URL
-    val SERVER_DOMAIN = stringPreferencesKey("server_domain")
-
-    // 登录Token
-    val SERVER_TOKEN = stringPreferencesKey("server_token")
-
     // 用户名
     val USERNAME = stringPreferencesKey("username")
 
-    suspend fun setServerDomain(context: Context, serverDomain: String) {
-        context.dataStore.edit { settings ->
-            settings[SERVER_DOMAIN] = serverDomain
-        }
-    }
-
-    fun getServerDomain(context: Context): Flow<String> {
-        return context.dataStore.data.map { settings ->
-            settings[SERVER_DOMAIN] ?: ""
-        }
-    }
+    // 登录Token
+    val SERVER_TOKEN = stringPreferencesKey("server_token")
 
     suspend fun setUsername(context: Context, username: String) {
         context.dataStore.edit { settings ->
