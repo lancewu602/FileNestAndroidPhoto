@@ -48,6 +48,14 @@ android {
     }
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = false
+    }
+}
+
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2026.02.00")
     implementation(composeBom)
