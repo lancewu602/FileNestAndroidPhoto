@@ -88,7 +88,7 @@ fun TextContentPair(title: String, content: String) {
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(title, style = MaterialTheme.typography.titleMedium)
+        Text(title, style = MaterialTheme.typography.bodyMedium)
         Text(content, style = MaterialTheme.typography.bodyMedium)
     }
 }
