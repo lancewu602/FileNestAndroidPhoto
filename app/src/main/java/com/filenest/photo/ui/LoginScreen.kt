@@ -10,16 +10,17 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.filenest.photo.viewmodel.MainViewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.runtime.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavHostController) {
     val viewModel: MainViewModel = hiltViewModel()
+    val isLoading by viewModel.isLoading.collectAsState()
 
-    var serverUrl by remember { mutableStateOf("http://192.168.1.1:8080") }
+    var serverUrl by remember { mutableStateOf("http://172.25.20.8:8080") }
     var username by remember { mutableStateOf("admin") }
-    var password by remember { mutableStateOf("123456") }
-    var isLoading by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("admin") }
 
     val isValidInput = serverUrl.isNotBlank() && username.isNotBlank() && password.isNotBlank()
 
@@ -64,7 +65,6 @@ fun LoginScreen(navController: NavHostController) {
 
                 Button(
                     onClick = {
-                        isLoading = true
                         viewModel.login(serverUrl, username, password) {
                             navController.navigate("browse") {
                                 popUpTo("login") { inclusive = true }
