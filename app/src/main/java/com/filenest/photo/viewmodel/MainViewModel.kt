@@ -79,7 +79,7 @@ class MainViewModel @Inject constructor(
                 )
                 val collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
 
-                val albumMap = mutableMapOf<Long, String>()
+                val albumMap = mutableMapOf<Long, Pair<String, Int>>()
 
                 context.contentResolver.query(
                     collection,
@@ -94,12 +94,17 @@ class MainViewModel @Inject constructor(
                     while (cursor.moveToNext()) {
                         val bucketId = cursor.getLong(bucketIdColumn)
                         val bucketName = cursor.getString(bucketNameColumn)
-                        albumMap[bucketId] = bucketName
+                        val current = albumMap[bucketId]
+                        if (current != null) {
+                            albumMap[bucketId] = current.copy(second = current.second + 1)
+                        } else {
+                            albumMap[bucketId] = bucketName to 1
+                        }
                     }
                 }
 
-                albumMap.map { (bucketId, bucketName) ->
-                    AlbumData(bucketId, bucketName)
+                albumMap.map { (bucketId, bucketNameAndCount) ->
+                    AlbumData(bucketId, bucketNameAndCount.first, bucketNameAndCount.second)
                 }.sortedBy { it.bucketName }
             } catch (e: Exception) {
                 emptyList()

@@ -54,7 +54,8 @@ fun AlbumSyncScreen(navController: androidx.navigation.NavHostController) {
                 SwitchTogglePair(
                     title = album.bucketName,
                     checked = album.bucketId in selectedAlbums,
-                    onToggle = { viewModel.toggleAlbum(album.bucketId) }
+                    onToggle = { viewModel.toggleAlbum(album.bucketId) },
+                    count = album.count
                 )
                 HorizontalDivider()
             }

@@ -112,7 +112,7 @@ fun TextContentPair(title: String, content: String) {
 }
 
 @Composable
-fun SwitchTogglePair(title: String, checked: Boolean, onToggle: (Boolean) -> Unit) {
+fun SwitchTogglePair(title: String, checked: Boolean, onToggle: (Boolean) -> Unit, count: Int? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -120,7 +120,16 @@ fun SwitchTogglePair(title: String, checked: Boolean, onToggle: (Boolean) -> Uni
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(title, style = MaterialTheme.typography.bodyMedium)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(title, style = MaterialTheme.typography.bodyMedium)
+            if (count != null) {
+                Text(
+                    text = " ($count)",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         Switch(checked = checked, onCheckedChange = onToggle)
     }
 }
