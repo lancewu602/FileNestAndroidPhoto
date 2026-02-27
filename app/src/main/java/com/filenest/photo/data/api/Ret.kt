@@ -1,5 +1,8 @@
 package com.filenest.photo.data.api
 
+/**
+ * 后端接口返回的结构，其中 data 是数据
+ */
 data class Ret<T>(
     val code: Int,
     val message: String? = null,
