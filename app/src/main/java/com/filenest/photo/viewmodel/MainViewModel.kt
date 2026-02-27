@@ -53,7 +53,7 @@ class MainViewModel @Inject constructor(
                 val response = api.login(LoginRequest(username, password))
 
                 if (isRetOk(response)) {
-                    val token = response.data?.token
+                    val token = response.data
                     if (token.isNullOrBlank()) {
                         Toast.makeText(context, "登录失败：未获取到token", Toast.LENGTH_SHORT).show()
                     } else {

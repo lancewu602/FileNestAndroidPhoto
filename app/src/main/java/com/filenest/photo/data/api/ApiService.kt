@@ -6,14 +6,10 @@ import retrofit2.http.POST
 interface ApiService {
 
     @POST("api/user/login")
-    suspend fun login(@Body request: LoginRequest): Ret<LoginResponse>
+    suspend fun login(@Body request: LoginRequest): Ret<String>
 }
 
 data class LoginRequest(
     val username: String,
     val password: String,
-)
-
-data class LoginResponse(
-    val token: String,
 )
