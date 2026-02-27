@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.filenest.photo.data.AppPrefKeys
+import com.filenest.photo.data.api.LoginRequest
 import com.filenest.photo.data.api.RetrofitClient
+import com.filenest.photo.data.api.isRetOk
+import com.filenest.photo.data.api.retMsg
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +26,9 @@ class MainViewModel @Inject constructor(
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
+    private val _loginError = MutableStateFlow<String?>(null)
+    val loginError: StateFlow<String?> = _loginError.asStateFlow()
+
     init {
         viewModelScope.launch {
             AppPrefKeys.getServerToken(context).collect { token ->
@@ -40,15 +46,27 @@ class MainViewModel @Inject constructor(
     fun login(serverUrl: String, username: String, password: String, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
-                val mockToken = "mock_token_${java.util.UUID.randomUUID()}"
-                AppPrefKeys.setServerUrl(context, serverUrl)
-                AppPrefKeys.setUsername(context, username)
-                AppPrefKeys.setServerToken(context, mockToken)
+                _loginError.value = null
                 retrofitClient.setServerUrl(serverUrl)
-                _isLoggedIn.value = true
-                onComplete()
+                val api = retrofitClient.getApiService()
+                val response = api.login(LoginRequest(username, password))
+
+                if (isRetOk(response)) {
+                    val token = response.data?.token
+                    if (token.isNullOrBlank()) {
+                        _loginError.value = "登录失败：未获取到token"
+                    } else {
+                        AppPrefKeys.setServerUrl(context, serverUrl)
+                        AppPrefKeys.setUsername(context, username)
+                        AppPrefKeys.setServerToken(context, token)
+                        _isLoggedIn.value = true
+                        onComplete()
+                    }
+                } else {
+                    _loginError.value = retMsg(response)
+                }
             } catch (e: Exception) {
-                e.printStackTrace()
+                _loginError.value = e.message ?: "网络错误"
             }
         }
     }
