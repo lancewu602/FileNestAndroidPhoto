@@ -20,12 +20,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.filenest.photo.viewmodel.MainViewModel
+import com.filenest.photo.viewmodel.AlbumSyncViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumSyncScreen(navController: androidx.navigation.NavHostController) {
-    val viewModel: MainViewModel = hiltViewModel()
+    val viewModel: AlbumSyncViewModel = hiltViewModel()
     val albums by viewModel.albums.collectAsState()
     val selectedAlbums by viewModel.selectedAlbums.collectAsState()
 
