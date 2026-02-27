@@ -73,35 +73,43 @@ class MainViewModel @Inject constructor(
     fun loadAlbums() {
         viewModelScope.launch {
             val albums = try {
-                val projection = arrayOf(
-                    MediaStore.Images.Media.BUCKET_ID,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME
-                )
-                val collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-
                 val albumMap = mutableMapOf<Long, Pair<String, Int>>()
 
-                context.contentResolver.query(
-                    collection,
-                    projection,
-                    null,
-                    null,
-                    null
-                )?.use { cursor ->
-                    val bucketIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID)
-                    val bucketNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+                fun queryMedia(storeUri: android.net.Uri, bucketIdCol: String, bucketNameCol: String) {
+                    val projection = arrayOf(bucketIdCol, bucketNameCol)
+                    context.contentResolver.query(
+                        storeUri,
+                        projection,
+                        null,
+                        null,
+                        null
+                    )?.use { cursor ->
+                        val bucketIdColumn = cursor.getColumnIndexOrThrow(bucketIdCol)
+                        val bucketNameColumn = cursor.getColumnIndexOrThrow(bucketNameCol)
 
-                    while (cursor.moveToNext()) {
-                        val bucketId = cursor.getLong(bucketIdColumn)
-                        val bucketName = cursor.getString(bucketNameColumn)
-                        val current = albumMap[bucketId]
-                        if (current != null) {
-                            albumMap[bucketId] = current.copy(second = current.second + 1)
-                        } else {
-                            albumMap[bucketId] = bucketName to 1
+                        while (cursor.moveToNext()) {
+                            val bucketId = cursor.getLong(bucketIdColumn)
+                            val bucketName = cursor.getString(bucketNameColumn)
+                            val current = albumMap[bucketId]
+                            if (current != null) {
+                                albumMap[bucketId] = current.copy(second = current.second + 1)
+                            } else {
+                                albumMap[bucketId] = bucketName to 1
+                            }
                         }
                     }
                 }
+
+                queryMedia(
+                    MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                    MediaStore.Images.Media.BUCKET_ID,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+                )
+                queryMedia(
+                    MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                    MediaStore.Video.Media.BUCKET_ID,
+                    MediaStore.Video.Media.BUCKET_DISPLAY_NAME
+                )
 
                 albumMap.map { (bucketId, bucketNameAndCount) ->
                     AlbumData(bucketId, bucketNameAndCount.first, bucketNameAndCount.second)
