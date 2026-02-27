@@ -12,11 +12,9 @@ interface ApiService {
     @Multipart
     @POST("/api/media/upload/direct")
     suspend fun uploadDirect(
-        @Query("type") type: Int,
-        @Query("fileName") fileName: String,
+        @Query("type") type: String,
+        @Query("name") name: String,
         @Query("size") size: Long,
-        @Query("width") width: Int,
-        @Query("height") height: Int,
         @Query("duration") duration: Int,
         @Query("dateToken") dateToken: Long,
         @Query("dateAdded") dateAdded: Long,
@@ -27,9 +25,7 @@ interface ApiService {
 
     // 检查分片上传进度，支持断点续传
     @POST("/api/media/upload/checkChunks")
-    suspend fun checkChunks(
-        @Body request: CheckChunkRequest,
-    ): Ret<CheckChunkResp>
+    suspend fun checkChunks(@Body request: CheckChunkRequest): Ret<CheckChunkResp>
 
     // 上传文件
     @Multipart
@@ -42,15 +38,11 @@ interface ApiService {
 
     // 合并分片
     @POST("/api/media/upload/notifyMergeChunks")
-    suspend fun notifyMergeChunks(
-        @Body request: MergeChunkRequest
-    ): Ret<*>
+    suspend fun notifyMergeChunks(@Body request: MergeChunkRequest): Ret<*>
 
     // 轮询合并结果
     @POST("/api/media/upload/pollMergeResult")
-    suspend fun pollMergeResult(
-        @Body request: MergeResultRequest,
-    ): Ret<MergeResultResp?>
+    suspend fun pollMergeResult(@Body request: MergeResultRequest): Ret<MergeResultResp?>
 }
 
 data class LoginRequest(
@@ -66,11 +58,9 @@ data class CheckChunkRequest(
 )
 
 data class MergeChunkRequest(
-    val type: Int,
-    val fileName: String,
+    val type: String,
+    val name: String,
     val size: Long,
-    val width: Int,
-    val height: Int,
     val duration: Int,
     val dateToken: Long,
     val dateAdded: Long,
