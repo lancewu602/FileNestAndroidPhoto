@@ -68,12 +68,13 @@ fun SyncScreen(navController: NavHostController) {
             }
 
             Button(
-                onClick = { },
+                onClick = { viewModel.startSync() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                enabled = !syncInfo.isSyncing
             ) {
-                Text("开始同步")
+                Text(if (syncInfo.isSyncing) "同步中..." else "开始同步")
             }
         }
     }
