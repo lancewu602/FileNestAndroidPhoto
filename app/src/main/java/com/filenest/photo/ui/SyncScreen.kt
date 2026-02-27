@@ -18,16 +18,24 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.filenest.photo.viewmodel.SyncViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SyncScreen(navController: NavHostController) {
-    val lastSyncTime = "2024-01-15 14:30:00"
-    val serverMediaCount = 1234
-    val pendingSyncCount = 56
+    val viewModel: SyncViewModel = hiltViewModel()
+    val syncInfo by viewModel.syncInfo.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadSyncInfo()
+    }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("同步") }) },
@@ -50,11 +58,11 @@ fun SyncScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    TextContentPair(title = "上次同步时间", content = lastSyncTime)
+                    TextContentPair(title = "上次同步时间", content = syncInfo.lastSyncTime)
                     HorizontalDivider()
-                    TextContentPair(title = "服务端媒体数量", content = serverMediaCount.toString())
+                    TextContentPair(title = "服务端媒体数量", content = syncInfo.serverMediaCount.toString())
                     HorizontalDivider()
-                    TextContentPair(title = "待同步文件数量", content = pendingSyncCount.toString())
+                    TextContentPair(title = "待同步文件数量", content = syncInfo.pendingSyncCount.toString())
                     HorizontalDivider()
                 }
             }
