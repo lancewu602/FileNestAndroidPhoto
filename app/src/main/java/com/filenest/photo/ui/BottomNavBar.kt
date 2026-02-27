@@ -1,6 +1,7 @@
 package com.filenest.photo.ui
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Sync
@@ -28,6 +29,7 @@ fun BottomNavBar(navController: NavHostController) {
 
     val items = listOf(
         BottomNavItem(Screen.Browse.route, "浏览", Icons.Default.Star),
+        BottomNavItem(Screen.Album.route, "相册", Icons.Default.Photo),
         BottomNavItem(Screen.Sync.route, "同步", Icons.Default.Sync),
         BottomNavItem(Screen.Settings.route, "设置", Icons.Default.Settings)
     )

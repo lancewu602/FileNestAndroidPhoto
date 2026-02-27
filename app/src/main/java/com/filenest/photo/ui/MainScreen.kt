@@ -13,6 +13,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 sealed class Screen(val route: String, val title: String) {
     data object Login : Screen("login", "登录")
     data object Browse : Screen("browse", "浏览")
+    data object Album : Screen("album", "相册")
     data object Sync : Screen("sync", "同步")
     data object Settings : Screen("settings", "设置")
     data object AlbumSync : Screen("album_sync", "配置同步相册")
@@ -32,6 +33,7 @@ fun MainScreen() {
     ) {
         composable(Screen.Login.route) { LoginScreen(navController) }
         composable(Screen.Browse.route) { BrowseScreen(navController) }
+        composable(Screen.Album.route) { AlbumScreen(navController) }
         composable(Screen.Sync.route) { SyncScreen(navController) }
         composable(Screen.Settings.route) { SettingScreen(navController) }
         composable(Screen.AlbumSync.route) { AlbumSyncScreen(navController) }
