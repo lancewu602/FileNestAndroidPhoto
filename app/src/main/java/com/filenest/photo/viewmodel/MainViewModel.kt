@@ -1,6 +1,7 @@
 package com.filenest.photo.viewmodel
 
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.filenest.photo.data.AppPrefKeys
@@ -26,9 +27,6 @@ class MainViewModel @Inject constructor(
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
-    private val _loginError = MutableStateFlow<String?>(null)
-    val loginError: StateFlow<String?> = _loginError.asStateFlow()
-
     init {
         viewModelScope.launch {
             AppPrefKeys.getServerToken(context).collect { token ->
@@ -46,7 +44,6 @@ class MainViewModel @Inject constructor(
     fun login(serverUrl: String, username: String, password: String, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
-                _loginError.value = null
                 retrofitClient.setServerUrl(serverUrl)
                 val api = retrofitClient.getApiService()
                 val response = api.login(LoginRequest(username, password))
@@ -54,7 +51,7 @@ class MainViewModel @Inject constructor(
                 if (isRetOk(response)) {
                     val token = response.data?.token
                     if (token.isNullOrBlank()) {
-                        _loginError.value = "登录失败：未获取到token"
+                        Toast.makeText(context, "登录失败：未获取到token", Toast.LENGTH_SHORT).show()
                     } else {
                         AppPrefKeys.setServerUrl(context, serverUrl)
                         AppPrefKeys.setUsername(context, username)
@@ -63,10 +60,10 @@ class MainViewModel @Inject constructor(
                         onComplete()
                     }
                 } else {
-                    _loginError.value = retMsg(response)
+                    Toast.makeText(context, retMsg(response), Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                _loginError.value = e.message ?: "网络错误"
+                Toast.makeText(context, e.message ?: "网络错误", Toast.LENGTH_SHORT).show()
             }
         }
     }
