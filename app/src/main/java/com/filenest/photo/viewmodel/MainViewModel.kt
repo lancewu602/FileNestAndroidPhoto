@@ -27,6 +27,9 @@ class MainViewModel @Inject constructor(
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     init {
         viewModelScope.launch {
             AppPrefKeys.getServerToken(context).collect { token ->
@@ -44,6 +47,7 @@ class MainViewModel @Inject constructor(
     fun login(serverUrl: String, username: String, password: String, onComplete: () -> Unit) {
         viewModelScope.launch {
             try {
+                _isLoading.value = true
                 retrofitClient.setServerUrl(serverUrl)
                 val api = retrofitClient.getApiService()
                 val response = api.login(LoginRequest(username, password))
@@ -64,6 +68,8 @@ class MainViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 Toast.makeText(context, e.message ?: "网络错误", Toast.LENGTH_SHORT).show()
+            } finally {
+                _isLoading.value = false
             }
         }
     }
