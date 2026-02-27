@@ -101,12 +101,12 @@ class MainViewModel @Inject constructor(
                 }
 
                 queryMedia(
-                    MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     MediaStore.Images.Media.BUCKET_ID,
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME
                 )
                 queryMedia(
-                    MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     MediaStore.Video.Media.BUCKET_ID,
                     MediaStore.Video.Media.BUCKET_DISPLAY_NAME
                 )
