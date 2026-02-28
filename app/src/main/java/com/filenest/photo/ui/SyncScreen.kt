@@ -51,13 +51,16 @@ fun SyncScreen(navController: NavHostController) {
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
                 ) {
+                    Text(
+                        text = "同步状态",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                    )
                     TextContentPair(title = "上次同步时间", content = syncInfo.lastSyncTime)
                     HorizontalDivider()
                     TextContentPair(title = "服务端媒体数量", content = syncInfo.serverMediaCount.toString())
