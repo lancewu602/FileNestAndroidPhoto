@@ -38,11 +38,11 @@ class MediaSyncUploadUseCase @Inject constructor(
         const val WAIT_POLL_TIMEOUT = 1000L * 60 * 30
     }
 
-    suspend fun uploadMedia(mediaSyncItem: MediaSyncItem): Boolean {
-        Log.i(TAG, "uploadMedia: $mediaSyncItem")
+    suspend fun uploadMedia(item: MediaSyncItem): Boolean {
+        Log.i(TAG, "uploadMedia: $item")
         return withContext(Dispatchers.IO) {
             try {
-                val uri = mediaSyncItem.contentUri.toUri()
+                val uri = item.contentUri.toUri()
                 val inputStream = context.contentResolver.openInputStream(uri)
                     ?: throw IllegalStateException("Cannot open input stream for URI")
 
@@ -53,24 +53,24 @@ class MediaSyncUploadUseCase @Inject constructor(
 
                 val filePart = MultipartBody.Part.createFormData(
                     name = "file",
-                    filename = mediaSyncItem.name,
+                    filename = item.name,
                     body = byteArray.toRequestBody(MEDIA_TYPE),
                 )
 
                 val ret = apiService.uploadDirect(
-                    type = mediaSyncItem.type,
-                    name = mediaSyncItem.name,
-                    size = mediaSyncItem.size,
-                    dateToken = mediaSyncItem.dateToken,
-                    dateAdded = mediaSyncItem.dateAdded,
-                    lastModified = mediaSyncItem.lastModified,
-                    duration = mediaSyncItem.duration,
-                    favorite = mediaSyncItem.favorite,
+                    type = item.type,
+                    name = item.name,
+                    size = item.size,
+                    dateToken = item.dateToken,
+                    dateAdded = item.dateAdded,
+                    lastModified = item.lastModified,
+                    duration = item.duration,
+                    favorite = item.favorite,
                     file = filePart,
                 )
 
                 if (isRetOk(ret)) {
-                    Log.i(TAG, "Upload success: ${mediaSyncItem.name}")
+                    Log.i(TAG, "Upload success: ${item.name}")
                     true
                 } else {
                     Log.e(TAG, "Upload failed: ${retMsg(ret)}")
