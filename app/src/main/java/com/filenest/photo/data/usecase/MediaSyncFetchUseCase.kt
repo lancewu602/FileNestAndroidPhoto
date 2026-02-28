@@ -102,14 +102,16 @@ class MediaSyncFetchUseCase @Inject constructor(
         } else {
             0
         }
+        val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED))
+        val dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_MODIFIED))
         return MediaSyncItem(
             contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id).toString(),
             type = "image",
             name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)),
             size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)),
             dateToken = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)),
-            dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)),
-            dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_MODIFIED)),
+            dateAdded = if (dateAdded != 0L) dateAdded * 1000 else 0,
+            dateModified = if (dateModified != 0L) dateModified * 1000 else 0,
             duration = 0,
             favorite = favorite,
             generationAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.GENERATION_ADDED)),
@@ -124,14 +126,16 @@ class MediaSyncFetchUseCase @Inject constructor(
         } else {
             0
         }
+        val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED))
+        val dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_MODIFIED))
         return MediaSyncItem(
             contentUri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id).toString(),
             type = "video",
             name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)),
             size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)),
             dateToken = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_TAKEN)),
-            dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)),
-            dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_MODIFIED)),
+            dateAdded = if (dateAdded != 0L) dateAdded * 1000 else 0,
+            dateModified = if (dateModified != 0L) dateModified * 1000 else 0,
             duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)),
             favorite = favorite,
             generationAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.GENERATION_ADDED)),
