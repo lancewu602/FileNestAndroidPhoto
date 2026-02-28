@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.provider.MediaStore
 import com.filenest.photo.data.AppPrefKeys
+import com.filenest.photo.data.model.MediaSyncItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -28,6 +29,7 @@ class MediaSyncFetchUseCase @Inject constructor(
     private val videoQueryColumns = arrayOf(
         MediaStore.Video.Media._ID,
         MediaStore.Video.Media.DISPLAY_NAME,
+        MediaStore.Video.Media.GENERATION_MODIFIED,
         MediaStore.Video.Media.SIZE,
         MediaStore.Video.Media.DATE_TAKEN,
         MediaStore.Video.Media.DATE_ADDED,
