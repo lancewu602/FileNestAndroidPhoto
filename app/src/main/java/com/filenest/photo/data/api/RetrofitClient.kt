@@ -5,6 +5,7 @@ import com.filenest.photo.data.AppPrefKeys
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -25,7 +26,21 @@ class RetrofitClient @Inject constructor(
             level = HttpLoggingInterceptor.Level.BODY
         }
 
+        val tokenInterceptor = Interceptor { chain ->
+            val originalRequest = chain.request()
+            val token = getStoredToken()
+            val newRequest = if (token.isNotBlank()) {
+                originalRequest.newBuilder()
+                    .header("file-nest-token", token)
+                    .build()
+            } else {
+                originalRequest
+            }
+            chain.proceed(newRequest)
+        }
+
         OkHttpClient.Builder()
+            .addInterceptor(tokenInterceptor)
 //            .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
@@ -52,6 +67,12 @@ class RetrofitClient @Inject constructor(
     private fun getStoredServerUrl(): String {
         return runBlocking {
             AppPrefKeys.getServerUrl(context).first()
+        }
+    }
+
+    private fun getStoredToken(): String {
+        return runBlocking {
+            AppPrefKeys.getServerToken(context).first()
         }
     }
 
