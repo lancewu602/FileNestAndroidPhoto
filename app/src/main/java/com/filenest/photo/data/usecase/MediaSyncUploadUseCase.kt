@@ -12,7 +12,9 @@ import com.filenest.photo.data.api.retMsg
 import com.filenest.photo.data.model.MediaSyncItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -176,30 +178,33 @@ class MediaSyncUploadUseCase @Inject constructor(
                     return@withContext false
                 }
 
-                val startTime = System.currentTimeMillis()
-                while (System.currentTimeMillis() - startTime < WAIT_POLL_TIMEOUT) {
-                    val pollRet = apiService.pollMergeResult(MergeResultRequest(fileId = fileId))
-                    if (isRetOk(pollRet) && pollRet.data != null) {
-                        val result = pollRet.data
-                        when (result.status) {
-                            "completed" -> {
-                                Log.i(TAG, "Chunked upload completed: ${item.name}")
-                                return@withContext true
+                try {
+                    withTimeout(WAIT_POLL_TIMEOUT) {
+                        while (true) {
+                            val pollRet = apiService.pollMergeResult(MergeResultRequest(fileId = fileId))
+                            if (isRetOk(pollRet) && pollRet.data != null) {
+                                val result = pollRet.data
+                                when (result.status) {
+                                    "completed" -> {
+                                        Log.i(TAG, "Chunked upload completed: ${item.name}")
+                                        return@withContext true
+                                    }
+                                    "failed" -> {
+                                        Log.e(TAG, "Merge failed: ${result.error}")
+                                        return@withContext false
+                                    }
+                                    else -> {
+                                        Log.i(TAG, "Merging progress: ${result.progress}")
+                                    }
+                                }
                             }
-                            "failed" -> {
-                                Log.e(TAG, "Merge failed: ${result.error}")
-                                return@withContext false
-                            }
-                            else -> {
-                                Log.i(TAG, "Merging progress: ${result.progress}")
-                            }
+                            kotlinx.coroutines.delay(POLL_INTERVAL)
                         }
                     }
-                    kotlinx.coroutines.delay(POLL_INTERVAL)
+                } catch (e: TimeoutCancellationException) {
+                    Log.e(TAG, "Merge poll timeout")
+                    false
                 }
-
-                Log.e(TAG, "Merge poll timeout")
-                false
             } catch (e: Exception) {
                 Log.e(TAG, "Chunked upload error: ${e.message}", e)
                 false
