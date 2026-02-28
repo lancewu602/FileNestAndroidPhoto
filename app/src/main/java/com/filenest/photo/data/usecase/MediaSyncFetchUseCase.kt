@@ -28,7 +28,6 @@ class MediaSyncFetchUseCase @Inject constructor(
     private val videoQueryColumns = arrayOf(
         MediaStore.Video.Media._ID,
         MediaStore.Video.Media.DISPLAY_NAME,
-        MediaStore.Video.Media.GENERATION_MODIFIED,
         MediaStore.Video.Media.SIZE,
         MediaStore.Video.Media.DATE_TAKEN,
         MediaStore.Video.Media.DATE_ADDED,
