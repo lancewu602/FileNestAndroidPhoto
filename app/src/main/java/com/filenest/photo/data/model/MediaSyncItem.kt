@@ -7,7 +7,7 @@ data class MediaSyncItem(
     val size: Long,
     val dateToken: Long,
     val dateAdded: Long,
-    val lastModified: Long,
+    val dateModified: Long,
     val duration: Int,
     val favorite: Int,
     val generationAdded: Long,

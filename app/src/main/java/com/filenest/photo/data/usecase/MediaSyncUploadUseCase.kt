@@ -81,7 +81,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                     size = item.size,
                     dateToken = item.dateToken,
                     dateAdded = item.dateAdded,
-                    lastModified = item.lastModified,
+                    dateModified = item.dateModified,
                     duration = item.duration,
                     favorite = item.favorite,
                     file = filePart,
@@ -108,7 +108,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                 SyncStateManager.setSyncProgressStep("上传中")
                 SyncStateManager.setSyncProgressFile(0F)
 
-                val fileId = "${item.name}-${item.size}-${item.lastModified}"
+                val fileId = "${item.name}-${item.size}-${item.dateModified}"
                 val totalChunks = (item.size + CHUNK_SIZE - 1) / CHUNK_SIZE
 
                 Log.i(TAG, "Starting chunked upload: fileId=$fileId, totalChunks=$totalChunks")
@@ -258,7 +258,7 @@ class MediaSyncUploadUseCase @Inject constructor(
             duration = item.duration,
             dateToken = item.dateToken,
             dateAdded = item.dateAdded,
-            lastModified = item.lastModified,
+            dateModified = item.dateModified,
             favorite = item.favorite,
             fileId = fileId,
             chunkSize = CHUNK_SIZE,
