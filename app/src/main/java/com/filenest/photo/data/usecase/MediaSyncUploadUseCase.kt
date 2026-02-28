@@ -106,7 +106,9 @@ class MediaSyncUploadUseCase @Inject constructor(
 
                 Log.i(TAG, "Starting chunked upload: fileId=$fileId, totalChunks=$totalChunks")
 
+                Log.i(TAG, "Checking chunk status: fileId=$fileId, totalChunks=$totalChunks, totalSize=${item.size}")
                 val startChunkIndex = getStartChunkIndex(fileId, totalChunks, item.size)
+                Log.i(TAG, "Chunk check result: startChunkIndex=$startChunkIndex")
 
                 val uri = item.contentUri.toUri()
                 var inputStream = context.contentResolver.openInputStream(uri)
@@ -131,8 +133,10 @@ class MediaSyncUploadUseCase @Inject constructor(
                     effectiveStartChunkIndex = 0
                 }
 
+                Log.i(TAG, "Starting chunk upload loop: from=$effectiveStartChunkIndex, total=$totalChunks")
                 inputStream.use { stream ->
                     for (chunkIndex in effectiveStartChunkIndex until totalChunks) {
+                        Log.d(TAG, "Uploading chunk $chunkIndex...")
                         val chunkData = ByteArrayOutputStream().use { outputStream ->
                             val buffer = ByteArray(CHUNK_SIZE)
                             val bytesRead = stream.read(buffer)
@@ -165,18 +169,24 @@ class MediaSyncUploadUseCase @Inject constructor(
                     }
                 }
 
+                Log.i(TAG, "All chunks uploaded, notifying merge: fileId=$fileId, totalChunks=$totalChunks")
                 val notifyRet = notifyMergeChunks(item, fileId, totalChunks)
                 if (!isRetOk(notifyRet)) {
                     Log.e(TAG, "Notify merge failed: ${retMsg(notifyRet)}")
                     return@withContext false
                 }
+                Log.i(TAG, "Notify merge success, start polling merge result")
 
+                Log.i(TAG, "Starting poll merge result: timeout=${WAIT_POLL_TIMEOUT}ms, interval=${POLL_INTERVAL}ms")
                 val startTime = System.currentTimeMillis()
                 var failureCount = 0
+                var pollCount = 0
                 while (System.currentTimeMillis() - startTime < WAIT_POLL_TIMEOUT) {
                     delay(POLL_INTERVAL)
                     ensureActive()
+                    pollCount++
                     try {
+                        Log.d(TAG, "Polling merge result: pollCount=$pollCount")
                         val pollRet = retrofitClient.getApiService().pollMergeResult(MergeResultRequest(fileId = fileId))
                         if (isRetOk(pollRet) && pollRet.data != null) {
                             val result = pollRet.data
@@ -217,10 +227,10 @@ class MediaSyncUploadUseCase @Inject constructor(
                     }
                 }
 
-                Log.e(TAG, "Merge poll timeout")
+                Log.e(TAG, "Merge poll timeout, pollCount=$pollCount, failureCount=$failureCount")
                 false
             } catch (e: Exception) {
-                Log.e(TAG, "Chunked upload error: ${e.message}", e)
+                Log.e(TAG, "Chunked upload error: fileId=$fileId, error=${e.message}", e)
                 false
             }
         }
