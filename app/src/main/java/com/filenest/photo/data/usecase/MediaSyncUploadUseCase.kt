@@ -41,6 +41,8 @@ class MediaSyncUploadUseCase @Inject constructor(
         const val POLL_INTERVAL = 1000L * 3
 
         const val WAIT_POLL_TIMEOUT = 1000L * 60 * 30
+
+        const val MAX_POLL_FAILURES = 5
     }
 
     suspend fun uploadMedia(item: MediaSyncItem): Boolean {
@@ -170,26 +172,47 @@ class MediaSyncUploadUseCase @Inject constructor(
                 }
 
                 val startTime = System.currentTimeMillis()
+                var failureCount = 0
                 while (System.currentTimeMillis() - startTime < WAIT_POLL_TIMEOUT) {
                     delay(POLL_INTERVAL)
                     ensureActive()
-                    val pollRet = retrofitClient.getApiService().pollMergeResult(MergeResultRequest(fileId = fileId))
-                    if (isRetOk(pollRet) && pollRet.data != null) {
-                        val result = pollRet.data
-                        when (result.status) {
-                            "SUCCESS" -> {
-                                Log.i(TAG, "Chunked upload completed: ${item.name}")
-                                return@withContext true
-                            }
+                    try {
+                        val pollRet = retrofitClient.getApiService().pollMergeResult(MergeResultRequest(fileId = fileId))
+                        if (isRetOk(pollRet) && pollRet.data != null) {
+                            val result = pollRet.data
+                            when (result.status) {
+                                "SUCCESS" -> {
+                                    Log.i(TAG, "Chunked upload completed: ${item.name}")
+                                    return@withContext true
+                                }
 
-                            "FAILED" -> {
-                                Log.e(TAG, "Merge failed: ${result.error}")
+                                "FAILED" -> {
+                                    failureCount++
+                                    Log.w(TAG, "Merge failed: ${result.error}, failure count: $failureCount")
+                                    if (failureCount >= MAX_POLL_FAILURES) {
+                                        Log.e(TAG, "Merge failed after $failureCount attempts")
+                                        return@withContext false
+                                    }
+                                }
+
+                                else -> {
+                                    Log.i(TAG, "Merging progress: ${result.progress}")
+                                }
+                            }
+                        } else {
+                            failureCount++
+                            Log.w(TAG, "Poll ret failed, failure count: $failureCount")
+                            if (failureCount >= MAX_POLL_FAILURES) {
+                                Log.e(TAG, "Poll ret failed after $failureCount attempts")
                                 return@withContext false
                             }
-
-                            else -> {
-                                Log.i(TAG, "Merging progress: ${result.progress}")
-                            }
+                        }
+                    } catch (e: Exception) {
+                        failureCount++
+                        Log.w(TAG, "Poll exception: ${e.message}, failure count: $failureCount")
+                        if (failureCount >= MAX_POLL_FAILURES) {
+                            Log.e(TAG, "Poll exception after $failureCount attempts")
+                            return@withContext false
                         }
                     }
                 }
