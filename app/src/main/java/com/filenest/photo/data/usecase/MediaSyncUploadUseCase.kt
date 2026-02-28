@@ -6,12 +6,15 @@ import androidx.core.net.toUri
 import com.filenest.photo.data.api.CheckChunkRequest
 import com.filenest.photo.data.api.MergeChunkRequest
 import com.filenest.photo.data.api.MergeResultRequest
+import com.filenest.photo.data.api.Ret
 import com.filenest.photo.data.api.RetrofitClient
 import com.filenest.photo.data.api.isRetOk
 import com.filenest.photo.data.api.retMsg
 import com.filenest.photo.data.model.MediaSyncItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -160,38 +163,26 @@ class MediaSyncUploadUseCase @Inject constructor(
                     }
                 }
 
-                val mergeRequest = MergeChunkRequest(
-                    type = item.type,
-                    name = item.name,
-                    size = item.size,
-                    duration = item.duration,
-                    dateToken = item.dateToken,
-                    dateAdded = item.dateAdded,
-                    lastModified = item.lastModified,
-                    favorite = item.favorite,
-                    fileId = fileId,
-                    chunkSize = CHUNK_SIZE,
-                    totalChunks = totalChunks,
-                )
-
-                val mergeRet = retrofitClient.getApiService().notifyMergeChunks(mergeRequest)
-                if (!isRetOk(mergeRet)) {
-                    Log.e(TAG, "Notify merge failed: ${retMsg(mergeRet)}")
+                val notifyRet = notifyMergeChunks(item, fileId, totalChunks)
+                if (!isRetOk(notifyRet)) {
+                    Log.e(TAG, "Notify merge failed: ${retMsg(notifyRet)}")
                     return@withContext false
                 }
 
                 val startTime = System.currentTimeMillis()
                 while (System.currentTimeMillis() - startTime < WAIT_POLL_TIMEOUT) {
+                    delay(POLL_INTERVAL)
+                    ensureActive()
                     val pollRet = retrofitClient.getApiService().pollMergeResult(MergeResultRequest(fileId = fileId))
                     if (isRetOk(pollRet) && pollRet.data != null) {
                         val result = pollRet.data
                         when (result.status) {
-                            "completed" -> {
+                            "SUCCESS" -> {
                                 Log.i(TAG, "Chunked upload completed: ${item.name}")
                                 return@withContext true
                             }
 
-                            "failed" -> {
+                            "FAILED" -> {
                                 Log.e(TAG, "Merge failed: ${result.error}")
                                 return@withContext false
                             }
@@ -201,7 +192,6 @@ class MediaSyncUploadUseCase @Inject constructor(
                             }
                         }
                     }
-                    kotlinx.coroutines.delay(POLL_INTERVAL)
                 }
 
                 Log.e(TAG, "Merge poll timeout")
@@ -211,6 +201,27 @@ class MediaSyncUploadUseCase @Inject constructor(
                 false
             }
         }
+    }
+
+    private suspend fun notifyMergeChunks(
+        item: MediaSyncItem,
+        fileId: String,
+        totalChunks: Long
+    ): Ret<*> {
+        val mergeRequest = MergeChunkRequest(
+            type = item.type,
+            name = item.name,
+            size = item.size,
+            duration = item.duration,
+            dateToken = item.dateToken,
+            dateAdded = item.dateAdded,
+            lastModified = item.lastModified,
+            favorite = item.favorite,
+            fileId = fileId,
+            chunkSize = CHUNK_SIZE,
+            totalChunks = totalChunks,
+        )
+        return retrofitClient.getApiService().notifyMergeChunks(mergeRequest)
     }
 
     private suspend fun getStartChunkIndex(
