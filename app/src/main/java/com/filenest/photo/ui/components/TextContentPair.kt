@@ -40,17 +40,11 @@ fun TextContentPair(
             label = "content",
             modifier = contentModifier
         ) { targetContent ->
-            val displayContent = if (ellipsizeMiddle && targetContent.length > 20) {
-                val halfLength = (targetContent.length - 5) / 2
-                "${targetContent.take(halfLength)}...${targetContent.takeLast(halfLength)}"
-            } else {
-                targetContent
-            }
             Text(
-                text = displayContent,
+                text = targetContent,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = if (ellipsizeMiddle) TextOverflow.MiddleEllipsis else TextOverflow.Ellipsis
             )
         }
     }
