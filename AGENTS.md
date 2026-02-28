@@ -33,18 +33,6 @@ Note: No test directory exists yet. When tests are added, run:
 ./gradlew :app:test --tests "com.filenest.photo.ExampleTest.testSpecificMethod"
 ```
 
-### Lint & Formatting
-```bash
-# Run lint
-./gradlew lint
-
-# Check for Kotlin code style violations
-./gradlew ktlintCheck
-
-# Format code
-./gradlew ktlintFormat
-```
-
 ## Code Style Guidelines
 
 ### Package Structure

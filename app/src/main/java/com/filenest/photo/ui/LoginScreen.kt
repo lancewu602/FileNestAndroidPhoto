@@ -38,6 +38,12 @@ fun LoginScreen(navController: NavHostController) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Text(
+                    text = "File Nest",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
                 OutlinedTextField(
                     value = serverUrl,
                     onValueChange = { serverUrl = it },
