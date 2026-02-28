@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -84,7 +85,12 @@ fun SyncScreen(navController: NavHostController) {
                         content = "${syncProgressInfo.total}/${syncProgressInfo.completed}"
                     )
                     HorizontalDivider()
-                    TextContentPair(title = "文件名称", content = syncProgressInfo.fileName)
+                    TextContentPair(
+                        title = "文件名称",
+                        content = syncProgressInfo.fileName,
+                        contentModifier = Modifier.weight(1f).padding(start = 8.dp),
+                        ellipsizeMiddle = true
+                    )
                     HorizontalDivider()
                     Row(
                         modifier = Modifier

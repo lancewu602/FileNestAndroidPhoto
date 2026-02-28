@@ -13,10 +13,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TextContentPair(title: String, content: String) {
+fun TextContentPair(
+    title: String,
+    content: String,
+    contentModifier: Modifier = Modifier,
+    ellipsizeMiddle: Boolean = false
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -31,9 +37,21 @@ fun TextContentPair(title: String, content: String) {
                 slideInVertically { height -> height } togetherWith
                     slideOutVertically { height -> -height }
             },
-            label = "content"
+            label = "content",
+            modifier = contentModifier
         ) { targetContent ->
-            Text(targetContent, style = MaterialTheme.typography.bodyMedium)
+            val displayContent = if (ellipsizeMiddle && targetContent.length > 20) {
+                val halfLength = (targetContent.length - 5) / 2
+                "${targetContent.take(halfLength)}...${targetContent.takeLast(halfLength)}"
+            } else {
+                targetContent
+            }
+            Text(
+                text = displayContent,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
