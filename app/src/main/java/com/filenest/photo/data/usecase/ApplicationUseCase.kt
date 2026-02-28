@@ -22,8 +22,6 @@ class ApplicationUseCase @Inject constructor(
         AppPrefKeys.setMediaStoreVersion(context, version)
 
         val generation = MediaStore.getGeneration(context, MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        AppPrefKeys.setMediaStoreLastGen(context, generation)
-
         Log.i("MediaStore", "Init mediaStore version: $version, generation: $generation")
     }
 

@@ -19,7 +19,7 @@ class MediaSyncUploadUseCase @Inject constructor(
 
     suspend fun uploadMedia(mediaSyncItem: MediaSyncItem) {
         Log.i(TAG, "uploadMedia: $mediaSyncItem")
-        delay(10)
+        delay(1000)
     }
 
 }

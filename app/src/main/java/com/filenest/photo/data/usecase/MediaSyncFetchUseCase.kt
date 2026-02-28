@@ -4,6 +4,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.provider.MediaStore
+import android.util.Log
 import com.filenest.photo.data.AppPrefKeys
 import com.filenest.photo.data.model.MediaSyncItem
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,6 +16,10 @@ import javax.inject.Singleton
 class MediaSyncFetchUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
 ) {
+    companion object {
+        const val TAG = "MediaSyncFetchUseCase"
+    }
+
     private val imageQueryColumns = arrayOf(
         MediaStore.Images.Media._ID,
         MediaStore.Images.Media.DISPLAY_NAME,
@@ -43,8 +48,9 @@ class MediaSyncFetchUseCase @Inject constructor(
     suspend fun fetchMedias(): List<MediaSyncItem> {
         val albumBucketIds = AppPrefKeys.getSelectedAlbums(context).first()
         val lastGen = AppPrefKeys.getMediaStoreLastGen(context).first()
-        val result = mutableListOf<MediaSyncItem>()
+        Log.i(TAG, "albumBucketIds: $albumBucketIds, lastGen: $lastGen")
 
+        val result = mutableListOf<MediaSyncItem>()
         if (albumBucketIds.isEmpty()) {
             return result
         }
