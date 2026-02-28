@@ -17,7 +17,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -97,7 +96,7 @@ class MediaSyncUploadUseCase @Inject constructor(
     private suspend fun uploadMediaChunked(item: MediaSyncItem): Boolean {
         return withContext(Dispatchers.IO) {
             try {
-                val fileId = UUID.randomUUID().toString()
+                val fileId = "${item.name}-${item.size}-${item.lastModified}"
                 val totalChunks = (item.size + CHUNK_SIZE - 1) / CHUNK_SIZE
 
                 Log.i(TAG, "Starting chunked upload: fileId=$fileId, totalChunks=$totalChunks")
