@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.filenest.photo.R
+import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.data.usecase.MediaSyncFetchUseCase
 import com.filenest.photo.data.usecase.MediaSyncUploadUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,6 +53,8 @@ class MediaSyncService : Service() {
             return START_STICKY
         }
         syncJob = serviceScope.launch {
+            SyncStateManager.setSyncing(true)
+
             val medias = mediaSyncFetchUseCase.fetchMedias()
             val total = medias.size
             Log.d(TAG, "开始同步: $total 个文件")
@@ -59,11 +62,13 @@ class MediaSyncService : Service() {
             medias.forEachIndexed { index, item ->
                 mediaSyncUploadUseCase.uploadMedia(item)
                 val progress = (index + 1) * 100 / total
-                updateNotification("正在上传 (${index + 1}/${total})", progress)
+                updateNotification("已上传 (${index + 1}/${total})", progress)
+                SyncStateManager.setSyncProgressInfo(index + 1, total, item.name)
             }
 
             Log.d(TAG, "同步完成")
             updateNotification("同步完成")
+            SyncStateManager.setSyncing(false)
             stopSelf()
         }
         return START_STICKY

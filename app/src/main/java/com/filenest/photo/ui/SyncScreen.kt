@@ -35,6 +35,7 @@ fun SyncScreen(navController: NavHostController) {
     val syncBasicInfo by viewModel.syncBasicInfo.collectAsState()
     val isSyncing by viewModel.isSyncing.collectAsState()
     val syncProgressInfo by viewModel.syncProgressInfo.collectAsState()
+    val syncProgressFile by viewModel.syncProgressFile.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadSyncInfo()
@@ -78,11 +79,11 @@ fun SyncScreen(navController: NavHostController) {
                         modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
                     )
                     TextContentPair(
-                        title = "总同步进度",
-                        content = "${syncProgressInfo.totalProgress}/${syncProgressInfo.totalFiles}"
+                        title = "同步进度",
+                        content = "${syncProgressInfo.total}/${syncProgressInfo.completed}"
                     )
                     HorizontalDivider()
-                    TextContentPair(title = "文件名称", content = syncProgressInfo.currentFileName)
+                    TextContentPair(title = "文件名称", content = syncProgressInfo.fileName)
                     HorizontalDivider()
                     Row(
                         modifier = Modifier
@@ -95,12 +96,12 @@ fun SyncScreen(navController: NavHostController) {
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            text = "${(syncProgressInfo.fileProgress * 100).toInt()}%",
+                            text = "${(syncProgressFile * 100).toInt()}%",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
                     LinearProgressIndicator(
-                        progress = { syncProgressInfo.fileProgress },
+                        progress = { syncProgressFile },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)

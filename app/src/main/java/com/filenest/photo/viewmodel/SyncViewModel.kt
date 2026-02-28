@@ -21,10 +21,9 @@ data class SyncBasicInfo(
 )
 
 data class SyncProgressInfo(
-    val totalProgress: Int = 0,
-    val totalFiles: Int = 0,
-    val currentFileName: String = "",
-    val fileProgress: Float = 0f
+    val total: Int = 0,
+    val completed: Int = 0,
+    val fileName: String = "",
 )
 
 @HiltViewModel
@@ -35,19 +34,9 @@ class SyncViewModel @Inject constructor(
     private val _syncBasicInfo = MutableStateFlow(SyncBasicInfo())
     val syncBasicInfo: StateFlow<SyncBasicInfo> = _syncBasicInfo.asStateFlow()
 
-    private val _isSyncing = MutableStateFlow(false)
-    val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
-
-    private val _syncProgressInfo = MutableStateFlow(SyncProgressInfo())
-    val syncProgressInfo: StateFlow<SyncProgressInfo> = _syncProgressInfo.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            SyncStateManager.isSyncing.collect { isSyncing ->
-                _isSyncing.value = isSyncing
-            }
-        }
-    }
+    val isSyncing: StateFlow<Boolean> = SyncStateManager.isSyncing
+    val syncProgressInfo: StateFlow<SyncProgressInfo> = SyncStateManager.syncProgressInfo
+    val syncProgressFile: StateFlow<Float> = SyncStateManager.syncProgressFile
 
     fun loadSyncInfo() {
         viewModelScope.launch {
@@ -55,12 +44,6 @@ class SyncViewModel @Inject constructor(
                 lastSyncTime = "2024-01-15 14:30:00",
                 serverMediaCount = 1234,
                 pendingSyncCount = 56
-            )
-            _syncProgressInfo.value = SyncProgressInfo(
-                totalProgress = 53,
-                totalFiles = 100,
-                currentFileName = "IMG_20240115_143000.jpg",
-                fileProgress = 0.65f
             )
         }
     }
