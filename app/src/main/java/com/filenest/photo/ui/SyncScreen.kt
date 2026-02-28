@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.filenest.photo.ui.components.TextContentPair
 import com.filenest.photo.viewmodel.SyncViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
