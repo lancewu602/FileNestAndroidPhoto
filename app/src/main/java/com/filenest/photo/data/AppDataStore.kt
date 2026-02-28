@@ -28,6 +28,12 @@ object AppPrefKeys {
     // 已选择的相册 bucketId 列表（JSON 格式）
     val SELECTED_ALBUMS = stringPreferencesKey("selected_albums")
 
+    // MediaStore 版本，后续可以存储到云端，避免App卸载后丢失
+    val MEDIA_STORE_VERSION = stringPreferencesKey("media_store_version")
+
+    // 媒体文件在数据库中的“修改代数”，后续可以存储到云端，避免App卸载后丢失
+    val MEDIA_STORE_LAST_GEN = longPreferencesKey("media_store_last_gen")
+
     suspend fun setUsername(context: Context, username: String) {
         context.dataStore.edit { settings ->
             settings[USERNAME] = username
@@ -90,6 +96,30 @@ object AppPrefKeys {
     suspend fun setSelectedAlbums(context: Context, albums: Set<Long>) {
         context.dataStore.edit { settings ->
             settings[SELECTED_ALBUMS] = Json.encodeToString(albums.toList())
+        }
+    }
+
+    fun getMediaStoreVersion(context: Context): Flow<String> {
+        return context.dataStore.data.map { settings ->
+            settings[MEDIA_STORE_VERSION] ?: ""
+        }
+    }
+
+    suspend fun setMediaStoreVersion(context: Context, version: String) {
+        context.dataStore.edit { settings ->
+            settings[MEDIA_STORE_VERSION] = version
+        }
+    }
+
+    fun getMediaStoreLastGen(context: Context): Flow<Long> {
+        return context.dataStore.data.map { settings ->
+            settings[MEDIA_STORE_LAST_GEN] ?: 0L
+        }
+    }
+
+    suspend fun setMediaStoreLastGen(context: Context, gen: Long) {
+        context.dataStore.edit { settings ->
+            settings[MEDIA_STORE_LAST_GEN] = gen
         }
     }
 
