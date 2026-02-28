@@ -10,4 +10,6 @@ data class MediaSyncItem(
     val lastModified: Long,
     val duration: Int,
     val favorite: Int,
+    val generationAdded: Long,
+    val generationModified: Long,
 )

@@ -40,7 +40,7 @@ class MediaSyncFetchUseCase @Inject constructor(
         MediaStore.Video.Media.RELATIVE_PATH,
     )
 
-    suspend fun fetchMediaFromEnabledAlbums(): List<MediaSyncItem> {
+    suspend fun fetchMedias(): List<MediaSyncItem> {
         val albumBucketIds = AppPrefKeys.getSelectedAlbums(context).first()
         val lastGen = AppPrefKeys.getMediaStoreLastGen(context).first()
         val result = mutableListOf<MediaSyncItem>()
@@ -104,6 +104,8 @@ class MediaSyncFetchUseCase @Inject constructor(
             lastModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_MODIFIED)),
             duration = 0,
             favorite = favorite,
+            generationAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.GENERATION_ADDED)),
+            generationModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.GENERATION_MODIFIED)),
         )
     }
 
@@ -124,6 +126,8 @@ class MediaSyncFetchUseCase @Inject constructor(
             lastModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_MODIFIED)),
             duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)),
             favorite = favorite,
+            generationAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.GENERATION_ADDED)),
+            generationModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.GENERATION_MODIFIED)),
         )
     }
 }
