@@ -10,13 +10,15 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.filenest.photo.data.SyncStateManager
+import com.filenest.photo.data.usecase.MediaSyncUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MediaSyncService : Service() {
 
-    private val serviceScope = CoroutineScope(Dispatchers.Default + Job())
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var syncJob: Job? = null
 
     companion object {
@@ -42,6 +44,9 @@ class MediaSyncService : Service() {
             context.stopService(intent)
         }
     }
+
+    @Inject
+    lateinit var mediaSyncUseCase: MediaSyncUseCase
 
     override fun onCreate() {
         super.onCreate()

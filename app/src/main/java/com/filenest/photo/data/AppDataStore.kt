@@ -1,8 +1,8 @@
 package com.filenest.photo.data
 
 import android.content.Context
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +21,9 @@ object AppPrefKeys {
 
     // 服务器地址
     val SERVER_URL = stringPreferencesKey("server_url")
+
+    // 上次同步时间
+    val LATEST_SYNC_TIME = longPreferencesKey("latest_sync_time")
 
     // 已选择的相册 bucketId 列表（JSON 格式）
     val SELECTED_ALBUMS = stringPreferencesKey("selected_albums")
@@ -58,6 +61,18 @@ object AppPrefKeys {
     fun getServerUrl(context: Context): Flow<String> {
         return context.dataStore.data.map { settings ->
             settings[SERVER_URL] ?: ""
+        }
+    }
+
+    suspend fun setLatestSyncTime(context: Context, time: Long) {
+        context.dataStore.edit { settings ->
+            settings[LATEST_SYNC_TIME] = time
+        }
+    }
+
+    fun getLatestSyncTime(context: Context): Flow<Long> {
+        return context.dataStore.data.map { settings ->
+            settings[LATEST_SYNC_TIME] ?: 0L
         }
     }
 

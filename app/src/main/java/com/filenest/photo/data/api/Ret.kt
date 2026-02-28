@@ -13,6 +13,6 @@ fun isRetOk(ret: Ret<*>?): Boolean {
     return ret?.let { it.code == 200 } ?: false
 }
 
-fun <T> retMsg(ret: Ret<T>?): String {
+fun retMsg(ret: Ret<*>?): String {
     return ret?.message ?: "未知异常"
 }

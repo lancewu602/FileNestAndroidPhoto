@@ -132,4 +132,7 @@ dependencies {
     androidTestImplementation("androidx.navigation:navigation-testing:2.9.7")
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.7.4")
 
+    // Apache Commons
+    implementation("commons-io:commons-io:2.20.0")
+    implementation("org.apache.commons:commons-lang3:3.20.0")
 }

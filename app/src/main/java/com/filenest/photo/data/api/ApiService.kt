@@ -15,10 +15,10 @@ interface ApiService {
         @Query("type") type: String,
         @Query("name") name: String,
         @Query("size") size: Long,
-        @Query("duration") duration: Int,
         @Query("dateToken") dateToken: Long,
         @Query("dateAdded") dateAdded: Long,
         @Query("lastModified") lastModified: Long,
+        @Query("duration") duration: Int,
         @Query("favorite") favorite: Int,
         @Part file: MultipartBody.Part,
     ): Ret<*>
