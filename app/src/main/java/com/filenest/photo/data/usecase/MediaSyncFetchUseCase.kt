@@ -18,6 +18,7 @@ class MediaSyncFetchUseCase @Inject constructor(
     private val imageQueryColumns = arrayOf(
         MediaStore.Images.Media._ID,
         MediaStore.Images.Media.DISPLAY_NAME,
+        MediaStore.Images.Media.GENERATION_ADDED,
         MediaStore.Images.Media.GENERATION_MODIFIED,
         MediaStore.Images.Media.SIZE,
         MediaStore.Images.Media.DATE_TAKEN,
@@ -29,6 +30,7 @@ class MediaSyncFetchUseCase @Inject constructor(
     private val videoQueryColumns = arrayOf(
         MediaStore.Video.Media._ID,
         MediaStore.Video.Media.DISPLAY_NAME,
+        MediaStore.Video.Media.GENERATION_ADDED,
         MediaStore.Video.Media.GENERATION_MODIFIED,
         MediaStore.Video.Media.SIZE,
         MediaStore.Video.Media.DATE_TAKEN,
@@ -39,22 +41,25 @@ class MediaSyncFetchUseCase @Inject constructor(
     )
 
     suspend fun fetchMediaFromEnabledAlbums(): List<MediaSyncItem> {
-        val enabledBucketIds = AppPrefKeys.getSelectedAlbums(context).first()
+        val albumBucketIds = AppPrefKeys.getSelectedAlbums(context).first()
+        val lastGen = AppPrefKeys.getMediaStoreLastGen(context).first()
         val result = mutableListOf<MediaSyncItem>()
 
-        if (enabledBucketIds.isEmpty()) {
+        if (albumBucketIds.isEmpty()) {
             return result
         }
 
-        val bucketIdsPlaceholder = enabledBucketIds.joinToString(separator = ",", prefix = "(", postfix = ")") { "?" }
-        val selectionArgs = enabledBucketIds.map { it.toString() }.toTypedArray()
+        val bucketIdsPlaceholder = albumBucketIds.joinToString(separator = ",", prefix = "(", postfix = ")") { "?" }
+        val selectionArgs = albumBucketIds.map { it.toString() }.toTypedArray()
 
         val imageSelection = """
                 ${MediaStore.Images.Media.BUCKET_ID} IN $bucketIdsPlaceholder
+                AND (${MediaStore.Images.Media.GENERATION_ADDED} > ? OR ${MediaStore.Images.Media.GENERATION_MODIFIED} > ?)
             """.trimIndent()
+        val imageSelectionArgs = selectionArgs + lastGen.toString() + lastGen.toString()
         val imageCursor = context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageQueryColumns, imageSelection, selectionArgs,
-            "${MediaStore.Images.Media.DATE_MODIFIED} ASC"
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageQueryColumns, imageSelection, imageSelectionArgs,
+            "${MediaStore.Images.Media.GENERATION_MODIFIED} ASC"
         )
 
         imageCursor?.use {
@@ -65,10 +70,12 @@ class MediaSyncFetchUseCase @Inject constructor(
 
         val videoSelection = """
                 ${MediaStore.Video.Media.BUCKET_ID} IN $bucketIdsPlaceholder
+                AND (${MediaStore.Video.Media.GENERATION_ADDED} > ? OR ${MediaStore.Video.Media.GENERATION_MODIFIED} > ?)
             """.trimIndent()
+        val videoSelectionArgs = selectionArgs + lastGen.toString() + lastGen.toString()
         val videoCursor = context.contentResolver.query(
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoQueryColumns, videoSelection, selectionArgs,
-            "${MediaStore.Video.Media.DATE_MODIFIED} ASC"
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoQueryColumns, videoSelection, videoSelectionArgs,
+            "${MediaStore.Video.Media.GENERATION_MODIFIED} ASC"
         )
 
         videoCursor?.use {
