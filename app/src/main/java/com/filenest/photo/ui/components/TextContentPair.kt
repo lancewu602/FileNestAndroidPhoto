@@ -38,13 +38,14 @@ fun TextContentPair(
                     slideOutVertically { height -> -height }
             },
             label = "content",
-            modifier = contentModifier
+            modifier = Modifier
         ) { targetContent ->
             Text(
                 text = targetContent,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
-                overflow = if (ellipsizeMiddle) TextOverflow.MiddleEllipsis else TextOverflow.Ellipsis
+                overflow = if (ellipsizeMiddle) TextOverflow.MiddleEllipsis else TextOverflow.Ellipsis,
+                modifier = contentModifier
             )
         }
     }
