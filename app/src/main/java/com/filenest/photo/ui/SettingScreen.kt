@@ -23,6 +23,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TopAppBar
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -101,10 +105,20 @@ fun TextContentPair(title: String, content: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(title, style = MaterialTheme.typography.bodyMedium)
-        Text(content, style = MaterialTheme.typography.bodyMedium)
+        AnimatedContent(
+            targetState = content,
+            transitionSpec = {
+                slideInHorizontally { width -> width } togetherWith
+                    slideOutHorizontally { width -> -width }
+            },
+            label = "content"
+        ) { targetContent ->
+            Text(targetContent, style = MaterialTheme.typography.bodyMedium)
+        }
     }
 }
 
