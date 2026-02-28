@@ -230,7 +230,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                 Log.e(TAG, "Merge poll timeout, pollCount=$pollCount, failureCount=$failureCount")
                 false
             } catch (e: Exception) {
-                Log.e(TAG, "Chunked upload error: fileId=$fileId, error=${e.message}", e)
+                Log.e(TAG, "Chunked upload error: uri=${item.contentUri}, error=${e.message}", e)
                 false
             }
         }
