@@ -10,15 +10,20 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class SyncInfo(
-    val lastSyncTime: String,
-    val serverMediaCount: Int,
-    val pendingSyncCount: Int,
-    val isSyncing: Boolean = false
+data class SyncBasicInfo(
+    val lastSyncTime: String = "",
+    val serverMediaCount: Int = 0,
+    val pendingSyncCount: Int = 0
+)
+
+data class SyncProgressInfo(
+    val totalProgress: Int = 0,
+    val totalFiles: Int = 0,
+    val currentFileName: String = "",
+    val fileProgress: Float = 0f
 )
 
 @HiltViewModel
@@ -26,30 +31,35 @@ class SyncViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    private val _syncInfo = MutableStateFlow(
-        SyncInfo(
-            lastSyncTime = "",
-            serverMediaCount = 0,
-            pendingSyncCount = 0
-        )
-    )
-    val syncInfo: StateFlow<SyncInfo> = _syncInfo.asStateFlow()
+    private val _syncBasicInfo = MutableStateFlow(SyncBasicInfo())
+    val syncBasicInfo: StateFlow<SyncBasicInfo> = _syncBasicInfo.asStateFlow()
+
+    private val _isSyncing = MutableStateFlow(false)
+    val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
+
+    private val _syncProgressInfo = MutableStateFlow(SyncProgressInfo())
+    val syncProgressInfo: StateFlow<SyncProgressInfo> = _syncProgressInfo.asStateFlow()
 
     init {
         viewModelScope.launch {
             SyncStateManager.isSyncing.collect { isSyncing ->
-                _syncInfo.value = _syncInfo.value.copy(isSyncing = isSyncing)
+                _isSyncing.value = isSyncing
             }
         }
     }
 
     fun loadSyncInfo() {
         viewModelScope.launch {
-            _syncInfo.value = SyncInfo(
+            _syncBasicInfo.value = SyncBasicInfo(
                 lastSyncTime = "2024-01-15 14:30:00",
                 serverMediaCount = 1234,
-                pendingSyncCount = 56,
-                isSyncing = SyncStateManager.isSyncing.value
+                pendingSyncCount = 56
+            )
+            _syncProgressInfo.value = SyncProgressInfo(
+                totalProgress = 53,
+                totalFiles = 100,
+                currentFileName = "IMG_20240115_143000.jpg",
+                fileProgress = 0.65f
             )
         }
     }
