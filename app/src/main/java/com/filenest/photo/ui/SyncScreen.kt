@@ -1,8 +1,6 @@
 package com.filenest.photo.ui
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,10 +20,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.filenest.photo.ui.components.ProgressContentPair
 import com.filenest.photo.ui.components.TextContentPair
 import com.filenest.photo.viewmodel.SyncViewModel
 
@@ -38,6 +35,7 @@ fun SyncScreen(navController: NavHostController) {
     val isSyncing by viewModel.isSyncing.collectAsState()
     val syncProgressInfo by viewModel.syncProgressInfo.collectAsState()
     val syncProgressFile by viewModel.syncProgressFile.collectAsState()
+    val syncProgressStep by viewModel.syncProgressStep.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadSyncInfo()
@@ -93,31 +91,16 @@ fun SyncScreen(navController: NavHostController) {
                     TextContentPair(
                         title = "文件名称",
                         content = syncProgressInfo.fileName,
-                        contentModifier = Modifier.weight(1f).padding(start = 8.dp),
+                        contentModifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp),
                         ellipsizeMiddle = true
                     )
                     HorizontalDivider()
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "文件进度",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "${(syncProgressFile * 100).toInt()}%",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    LinearProgressIndicator(
-                        progress = { syncProgressFile },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .height(8.dp),
+                    ProgressContentPair(
+                        title = "文件进度",
+                        progressText = "$syncProgressStep ${(syncProgressFile * 100).toInt()}%",
+                        progress = syncProgressFile
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }

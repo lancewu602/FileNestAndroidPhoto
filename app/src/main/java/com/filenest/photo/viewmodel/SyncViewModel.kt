@@ -24,6 +24,7 @@ data class SyncProgressInfo(
     val total: Int = 0,
     val completed: Int = 0,
     val fileName: String = "",
+    val step: String = "",
 )
 
 @HiltViewModel
@@ -37,6 +38,7 @@ class SyncViewModel @Inject constructor(
     val isSyncing: StateFlow<Boolean> = SyncStateManager.isSyncing
     val syncProgressInfo: StateFlow<SyncProgressInfo> = SyncStateManager.syncProgressInfo
     val syncProgressFile: StateFlow<Float> = SyncStateManager.syncProgressFile
+    val syncProgressStep: StateFlow<String> = SyncStateManager.syncProgressStep
 
     fun loadSyncInfo() {
         viewModelScope.launch {

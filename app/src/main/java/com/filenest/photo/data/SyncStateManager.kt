@@ -12,6 +12,9 @@ object SyncStateManager {
     private val _syncProgressInfo = MutableStateFlow(SyncProgressInfo())
     val syncProgressInfo: StateFlow<SyncProgressInfo> = _syncProgressInfo.asStateFlow()
 
+    private val _syncProgressStep = MutableStateFlow("")
+    val syncProgressStep: StateFlow<String> = _syncProgressStep.asStateFlow()
+
     private val _syncProgressFile = MutableStateFlow(0F)
     val syncProgressFile: StateFlow<Float> = _syncProgressFile.asStateFlow()
 
@@ -29,5 +32,9 @@ object SyncStateManager {
 
     fun setSyncProgressFile(progress: Float) {
         _syncProgressFile.value = progress
+    }
+
+    fun setSyncProgressStep(step: String) {
+        _syncProgressStep.value = step
     }
 }

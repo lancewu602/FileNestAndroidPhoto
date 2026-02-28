@@ -3,6 +3,7 @@ package com.filenest.photo.data.usecase
 import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
+import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.data.api.CheckChunkRequest
 import com.filenest.photo.data.api.MergeChunkRequest
 import com.filenest.photo.data.api.MergeResultRequest
@@ -57,6 +58,8 @@ class MediaSyncUploadUseCase @Inject constructor(
     private suspend fun uploadMediaDirect(item: MediaSyncItem): Boolean {
         return withContext(Dispatchers.IO) {
             try {
+                SyncStateManager.setSyncProgressStep("上传中")
+                SyncStateManager.setSyncProgressFile(0F)
                 val uri = item.contentUri.toUri()
                 val inputStream = context.contentResolver.openInputStream(uri)
                     ?: throw IllegalStateException("Cannot open input stream for URI")
@@ -86,6 +89,7 @@ class MediaSyncUploadUseCase @Inject constructor(
 
                 if (isRetOk(ret)) {
                     Log.i(TAG, "Direct upload success: ${item.name}")
+                    SyncStateManager.setSyncProgressFile(1F)
                     true
                 } else {
                     Log.e(TAG, "Direct upload failed: ${retMsg(ret)}")
@@ -101,6 +105,9 @@ class MediaSyncUploadUseCase @Inject constructor(
     private suspend fun uploadMediaChunked(item: MediaSyncItem): Boolean {
         return withContext(Dispatchers.IO) {
             try {
+                SyncStateManager.setSyncProgressStep("上传中")
+                SyncStateManager.setSyncProgressFile(0F)
+
                 val fileId = "${item.name}-${item.size}-${item.lastModified}"
                 val totalChunks = (item.size + CHUNK_SIZE - 1) / CHUNK_SIZE
 
@@ -166,6 +173,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                         }
 
                         Log.i(TAG, "Chunk $chunkIndex uploaded successfully")
+                        SyncStateManager.setSyncProgressFile(chunkIndex / totalChunks.toFloat());
                     }
                 }
 
@@ -178,6 +186,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                 Log.i(TAG, "Notify merge success, start polling merge result")
 
                 Log.i(TAG, "Starting poll merge result: timeout=${WAIT_POLL_TIMEOUT}ms, interval=${POLL_INTERVAL}ms")
+                SyncStateManager.setSyncProgressStep("合并分片中")
                 val startTime = System.currentTimeMillis()
                 var failureCount = 0
                 var pollCount = 0
@@ -193,6 +202,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                             when (result.status) {
                                 "SUCCESS" -> {
                                     Log.i(TAG, "Chunked upload completed: ${item.name}")
+                                    SyncStateManager.setSyncProgressFile(1F)
                                     return@withContext true
                                 }
 
