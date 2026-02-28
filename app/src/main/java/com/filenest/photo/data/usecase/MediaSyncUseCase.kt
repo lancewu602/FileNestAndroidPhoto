@@ -11,6 +11,7 @@ import com.filenest.photo.data.AppPrefKeys
 import com.filenest.photo.data.api.*
 import com.filenest.photo.exception.UploadException
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
@@ -143,7 +144,8 @@ class MediaSyncUseCase @Inject constructor(
     private suspend fun iterateUploadImage(cursor: Cursor, enabledSyncFavorite: Boolean) {
         while (cursor.moveToNext()) {
             val mediaItem = imageCursorConvertToItem(cursor, enabledSyncFavorite)
-            uploadMediaItem(mediaItem)
+//            uploadMediaItem(mediaItem)
+            Log.i(TAG, "image: ${mediaItem.name}")
         }
     }
 
@@ -153,7 +155,8 @@ class MediaSyncUseCase @Inject constructor(
     private suspend fun iterateUploadVideo(cursor: Cursor, enabledSyncFavorite: Boolean) {
         while (cursor.moveToNext()) {
             val mediaItem = videoCursorConvertToItem(cursor, enabledSyncFavorite)
-            uploadMediaItem(mediaItem)
+//            uploadMediaItem(mediaItem)
+            Log.i(TAG, "image: ${mediaItem.name}")
         }
     }
 
@@ -264,11 +267,11 @@ class MediaSyncUseCase @Inject constructor(
     /**
      * 获取已上传的最大分片索引
      */
-    private suspend fun getServerLatestChunkIndex(fileId: String, totalSize: Long, totalChunks: Int): Int {
+    private suspend fun getServerLatestChunkIndex(fileId: String, totalSize: Long, totalChunks: Long): Int {
         return retrofitClient.getApiService().checkChunks(
             CheckChunkRequest(
                 fileId = fileId,
-                chunkSize = CHUNK_SIZE.toLong(),
+                chunkSize = CHUNK_SIZE,
                 totalSize = totalSize,
                 totalChunks = totalChunks,
             )
@@ -279,10 +282,10 @@ class MediaSyncUseCase @Inject constructor(
      * 上传媒体文件（分片上传）
      */
     private suspend fun uploadUseChunk(
-        mediaUri: Uri, fileId: String, fileName: String, totalChunks: Int, latestChunkIndex: Int,
+        mediaUri: Uri, fileId: String, fileName: String, totalChunks: Long, latestChunkIndex: Int,
         onChunkUploadFinished: (uploadSize: Long) -> Unit
     ) {
-        if (latestChunkIndex == totalChunks) return
+        if (latestChunkIndex.toLong() == totalChunks) return
 
         // 计算跳过的字节数
         val skipBytes = latestChunkIndex * CHUNK_SIZE.toLong()
@@ -318,7 +321,7 @@ class MediaSyncUseCase @Inject constructor(
      * 通知服务端进行分片合并
      */
     private suspend fun noticeMergeChunks(
-        fileId: String, totalChunks: Int, item: MediaSyncItem,
+        fileId: String, totalChunks: Long, item: MediaSyncItem,
     ) {
         retrofitClient.getApiService().notifyMergeChunks(
             MergeChunkRequest(
@@ -331,7 +334,7 @@ class MediaSyncUseCase @Inject constructor(
                 lastModified = item.lastModified,
                 favorite = item.favorite,
                 fileId = fileId,
-                chunkSize = CHUNK_SIZE.toLong(),
+                chunkSize = CHUNK_SIZE,
                 totalChunks = totalChunks,
             )
         )
@@ -340,7 +343,7 @@ class MediaSyncUseCase @Inject constructor(
     /**
      * 轮训等待服务端合并完成
      */
-    private suspend fun pollMergeResult(
+    private suspend fun CoroutineScope.pollMergeResult(
         fileId: String,
         onProgress: (progress: Float) -> Unit = {},
     ) {

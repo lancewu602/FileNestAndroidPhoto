@@ -52,9 +52,9 @@ data class LoginRequest(
 
 data class CheckChunkRequest(
     val fileId: String,
-    val chunkSize: Long,
+    val chunkSize: Int,
     val totalSize: Long,
-    val totalChunks: Int,
+    val totalChunks: Long,
 )
 
 data class MergeChunkRequest(
@@ -67,8 +67,8 @@ data class MergeChunkRequest(
     val lastModified: Long,
     val favorite: Int,
     val fileId: String,
-    val chunkSize: Long,
-    val totalChunks: Int,
+    val chunkSize: Int,
+    val totalChunks: Long,
 )
 
 data class MergeResultRequest(
