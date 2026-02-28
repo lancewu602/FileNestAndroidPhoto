@@ -81,6 +81,11 @@ fun SyncScreen(navController: NavHostController) {
                         modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
                     )
                     TextContentPair(
+                        title = "状态",
+                        content = if (isSyncing) "同步中" else "未开始"
+                    )
+                    HorizontalDivider()
+                    TextContentPair(
                         title = "同步进度",
                         content = "${syncProgressInfo.total}/${syncProgressInfo.completed}"
                     )
