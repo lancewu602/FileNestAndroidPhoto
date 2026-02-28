@@ -104,13 +104,30 @@ class MediaSyncUploadUseCase @Inject constructor(
                 val startChunkIndex = getStartChunkIndex(fileId, totalChunks, item.size)
 
                 val uri = item.contentUri.toUri()
-                val inputStream = context.contentResolver.openInputStream(uri)
+                var inputStream = context.contentResolver.openInputStream(uri)
                     ?: throw IllegalStateException("Cannot open input stream for URI")
 
-                inputStream.use { stream ->
-                    stream.skip((startChunkIndex * CHUNK_SIZE).toLong())
+                var effectiveStartChunkIndex = startChunkIndex
 
-                    for (chunkIndex in startChunkIndex until totalChunks) {
+                try {
+                    val skipped = inputStream.skip((effectiveStartChunkIndex * CHUNK_SIZE).toLong())
+                    if (skipped < effectiveStartChunkIndex * CHUNK_SIZE) {
+                        Log.w(TAG, "Stream skip incomplete, restarting from 0")
+                        inputStream.close()
+                        inputStream = context.contentResolver.openInputStream(uri)
+                            ?: throw IllegalStateException("Cannot reopen input stream")
+                        effectiveStartChunkIndex = 0
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Stream skip failed: ${e.message}, restarting from 0")
+                    inputStream.close()
+                    inputStream = context.contentResolver.openInputStream(uri)
+                        ?: throw IllegalStateException("Cannot reopen input stream")
+                    effectiveStartChunkIndex = 0
+                }
+
+                inputStream.use { stream ->
+                    for (chunkIndex in effectiveStartChunkIndex until totalChunks) {
                         val chunkData = ByteArrayOutputStream().use { outputStream ->
                             val buffer = ByteArray(CHUNK_SIZE)
                             val bytesRead = stream.read(buffer)
