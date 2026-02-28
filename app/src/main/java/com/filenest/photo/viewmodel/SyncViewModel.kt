@@ -1,6 +1,7 @@
 package com.filenest.photo.viewmodel
 
 import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.filenest.photo.data.SyncStateManager
@@ -68,6 +69,6 @@ class SyncViewModel @Inject constructor(
         if (SyncStateManager.isSyncing.value) {
             return
         }
-        MediaSyncService.startSync(context)
+        context.startForegroundService(Intent(context, MediaSyncService::class.java))
     }
 }
