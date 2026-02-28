@@ -43,7 +43,10 @@ class MediaSyncUseCase @Inject constructor(
     companion object {
         const val TAG = "MediaSyncUseCase"
 
-        // 单个分片的大小，MB
+        // 切片上传阈值，大于等于此值使用分片上传（单位：字节）
+        const val CHUNK_THRESHOLD = 1024L * 1024 * 20
+
+        // 单个分片的大小（单位：字节）
         const val CHUNK_SIZE = 1024 * 1024 * 5
 
         val MEDIA_TYPE = "application/octet-stream".toMediaType()
@@ -206,8 +209,8 @@ class MediaSyncUseCase @Inject constructor(
     suspend fun uploadMediaItem(item: MediaSyncItem) {
         val fileUri = item.contentUri.toUri()
 
-        // 根据文件大小，判断是否要进行切片上传，大于 5M 使用切片上传
-        if (CHUNK_SIZE >= item.size) {
+        // 根据文件大小，判断是否要进行切片上传，大于 CHUNK_THRESHOLD 使用分片上传
+        if (CHUNK_THRESHOLD > item.size) {
             // 直接上传
             val fileByteArray = openFileAndSkip(fileUri, 0)?.use { stream ->
                 IOUtils.toByteArray(stream)
