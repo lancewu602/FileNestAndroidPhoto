@@ -11,7 +11,6 @@ import com.filenest.photo.data.AppPrefKeys
 import com.filenest.photo.data.api.*
 import com.filenest.photo.exception.UploadException
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
@@ -82,6 +81,10 @@ class MediaSyncUseCase @Inject constructor(
     /**
      * 启动同步任务
      */
+    suspend fun syncMedia() {
+        launchSyncTask()
+    }
+
     private suspend fun launchSyncTask() {
         val latestModifiedTime = AppPrefKeys.getLatestSyncTime(context).first()
         val enabledBucketIds = AppPrefKeys.getSelectedAlbums(context).first()
@@ -95,6 +98,10 @@ class MediaSyncUseCase @Inject constructor(
             add(latestModifiedTime.toString())
             enabledBucketIds.forEach { add(it.toString()) }
         }.toTypedArray()
+
+        if (enabledBucketIds.isEmpty()) {
+            return
+        }
 
         // 查询照片
         val imageSelection = """
@@ -165,7 +172,7 @@ class MediaSyncUseCase @Inject constructor(
             dateToken = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)),
             dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)),
             lastModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_MODIFIED)),
-            duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DURATION)),
+            duration = 0,
             favorite = favorite,
         )
     }
@@ -199,7 +206,7 @@ class MediaSyncUseCase @Inject constructor(
     suspend fun uploadMediaItem(item: MediaSyncItem) {
         val fileUri = item.contentUri.toUri()
 
-        // 根据文件大小，判断是否要进行切片上传，大于 20M 使用切片上传
+        // 根据文件大小，判断是否要进行切片上传，大于 5M 使用切片上传
         if (CHUNK_SIZE >= item.size) {
             // 直接上传
             val fileByteArray = openFileAndSkip(fileUri, 0)?.use { stream ->
@@ -229,7 +236,7 @@ class MediaSyncUseCase @Inject constructor(
             // 步骤1、生成 fileId、chunkSize、totalSize、totalChunks 参数
             val fileName = item.name
             val totalSize = item.size
-            val totalChunks = (totalSize / CHUNK_SIZE).toInt() + (if (totalSize % CHUNK_SIZE > 0) 1 else 0)
+            val totalChunks = (totalSize + CHUNK_SIZE - 1) / CHUNK_SIZE
             val fileId = "${fileName}-${totalSize}-${item.lastModified}"
 
             // 步骤2、检查这个文件有哪些分片已经上传到服务端了，支持断点续传
@@ -330,7 +337,7 @@ class MediaSyncUseCase @Inject constructor(
     /**
      * 轮训等待服务端合并完成
      */
-    private suspend fun CoroutineScope.pollMergeResult(
+    private suspend fun pollMergeResult(
         fileId: String,
         onProgress: (progress: Float) -> Unit = {},
     ) {
