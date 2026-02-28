@@ -84,6 +84,8 @@ class MediaSyncFetchUseCase @Inject constructor(
             }
         }
 
+        result.sortBy { it.generationModified }
+
         return result
     }
 
