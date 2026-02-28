@@ -3,18 +3,16 @@ package com.filenest.photo.data.usecase
 import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
-import com.filenest.photo.data.api.ApiService
 import com.filenest.photo.data.api.CheckChunkRequest
 import com.filenest.photo.data.api.MergeChunkRequest
 import com.filenest.photo.data.api.MergeResultRequest
+import com.filenest.photo.data.api.RetrofitClient
 import com.filenest.photo.data.api.isRetOk
 import com.filenest.photo.data.api.retMsg
 import com.filenest.photo.data.model.MediaSyncItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -25,7 +23,7 @@ import javax.inject.Singleton
 @Singleton
 class MediaSyncUploadUseCase @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val apiService: ApiService,
+    private val retrofitClient: RetrofitClient,
 ) {
 
     companion object {
@@ -69,7 +67,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                     body = byteArray.toRequestBody(MEDIA_TYPE),
                 )
 
-                val ret = apiService.uploadDirect(
+                val ret = retrofitClient.getApiService().uploadDirect(
                     type = item.type,
                     name = item.name,
                     size = item.size,
@@ -103,20 +101,7 @@ class MediaSyncUploadUseCase @Inject constructor(
 
                 Log.i(TAG, "Starting chunked upload: fileId=$fileId, totalChunks=$totalChunks")
 
-                val checkRet = apiService.checkChunks(
-                    CheckChunkRequest(
-                        fileId = fileId,
-                        chunkSize = CHUNK_SIZE,
-                        totalSize = item.size,
-                        totalChunks = totalChunks,
-                    )
-                )
-
-                val startChunkIndex = if (isRetOk(checkRet)) {
-                    (checkRet.data?.maxChunkIndex ?: -1) + 1
-                } else {
-                    0
-                }
+                val startChunkIndex = getStartChunkIndex(fileId, totalChunks, item.size)
 
                 val uri = item.contentUri.toUri()
                 val inputStream = context.contentResolver.openInputStream(uri)
@@ -143,7 +128,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                             body = chunkData.toRequestBody(MEDIA_TYPE),
                         )
 
-                        val uploadRet = apiService.uploadChunk(
+                        val uploadRet = retrofitClient.getApiService().uploadChunk(
                             fileId = fileId,
                             chunkIndex = chunkIndex,
                             chunk = chunkPart,
@@ -172,43 +157,67 @@ class MediaSyncUploadUseCase @Inject constructor(
                     totalChunks = totalChunks,
                 )
 
-                val mergeRet = apiService.notifyMergeChunks(mergeRequest)
+                val mergeRet = retrofitClient.getApiService().notifyMergeChunks(mergeRequest)
                 if (!isRetOk(mergeRet)) {
                     Log.e(TAG, "Notify merge failed: ${retMsg(mergeRet)}")
                     return@withContext false
                 }
 
-                try {
-                    withTimeout(WAIT_POLL_TIMEOUT) {
-                        while (true) {
-                            val pollRet = apiService.pollMergeResult(MergeResultRequest(fileId = fileId))
-                            if (isRetOk(pollRet) && pollRet.data != null) {
-                                val result = pollRet.data
-                                when (result.status) {
-                                    "completed" -> {
-                                        Log.i(TAG, "Chunked upload completed: ${item.name}")
-                                        return@withContext true
-                                    }
-                                    "failed" -> {
-                                        Log.e(TAG, "Merge failed: ${result.error}")
-                                        return@withContext false
-                                    }
-                                    else -> {
-                                        Log.i(TAG, "Merging progress: ${result.progress}")
-                                    }
-                                }
+                val startTime = System.currentTimeMillis()
+                while (System.currentTimeMillis() - startTime < WAIT_POLL_TIMEOUT) {
+                    val pollRet = retrofitClient.getApiService().pollMergeResult(MergeResultRequest(fileId = fileId))
+                    if (isRetOk(pollRet) && pollRet.data != null) {
+                        val result = pollRet.data
+                        when (result.status) {
+                            "completed" -> {
+                                Log.i(TAG, "Chunked upload completed: ${item.name}")
+                                return@withContext true
                             }
-                            kotlinx.coroutines.delay(POLL_INTERVAL)
+
+                            "failed" -> {
+                                Log.e(TAG, "Merge failed: ${result.error}")
+                                return@withContext false
+                            }
+
+                            else -> {
+                                Log.i(TAG, "Merging progress: ${result.progress}")
+                            }
                         }
                     }
-                } catch (e: TimeoutCancellationException) {
-                    Log.e(TAG, "Merge poll timeout")
-                    false
+                    kotlinx.coroutines.delay(POLL_INTERVAL)
                 }
+
+                Log.e(TAG, "Merge poll timeout")
+                false
             } catch (e: Exception) {
                 Log.e(TAG, "Chunked upload error: ${e.message}", e)
                 false
             }
+        }
+    }
+
+    private suspend fun getStartChunkIndex(
+        fileId: String,
+        totalChunks: Long,
+        totalSize: Long
+    ): Int {
+        return try {
+            val ret = retrofitClient.getApiService().checkChunks(
+                CheckChunkRequest(
+                    fileId = fileId,
+                    chunkSize = CHUNK_SIZE,
+                    totalSize = totalSize,
+                    totalChunks = totalChunks,
+                )
+            )
+            if (isRetOk(ret)) {
+                ret.data?.maxChunkIndex ?: 0
+            } else {
+                0
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Check chunks failed: ${e.message}, starting from 0")
+            0
         }
     }
 

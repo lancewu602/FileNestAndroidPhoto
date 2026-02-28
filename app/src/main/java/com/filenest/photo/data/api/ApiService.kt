@@ -32,7 +32,7 @@ interface ApiService {
     @POST("/api/media/upload/chunk")
     suspend fun uploadChunk(
         @Query("fileId") fileId: String,
-        @Query("chunkIndex") chunkIndex: Int,
+        @Query("chunkIndex") chunkIndex: Long,
         @Part chunk: MultipartBody.Part,
     ): Ret<*>
 
