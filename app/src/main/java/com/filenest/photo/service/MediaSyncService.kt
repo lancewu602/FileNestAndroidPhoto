@@ -28,6 +28,7 @@ class MediaSyncService : Service() {
     private var syncJob: Job? = null
 
     companion object {
+        private const val TAG = "MediaSyncService"
         private const val CHANNEL_ID = "media_sync_channel"
         private const val NOTIFICATION_ID = 1001
     }
@@ -53,14 +54,15 @@ class MediaSyncService : Service() {
         syncJob = serviceScope.launch {
             val medias = mediaSyncFetchUseCase.fetchMedias()
             val total = medias.size
+            Log.d(TAG, "开始同步: $total 个文件")
 
             medias.forEachIndexed { index, item ->
                 mediaSyncUploadUseCase.uploadMedia(item)
-                val progress = ((index + 1) * 100 / total).toInt()
-                updateNotification("正在上传: ${item.name} (${index + 1}/${total})", progress)
+                val progress = (index + 1) * 100 / total
+                updateNotification("正在上传 (${index + 1}/${total})", progress)
             }
 
-            Log.d("MediaSyncService", "同步完成")
+            Log.d(TAG, "同步完成")
             updateNotification("同步完成")
             stopSelf()
         }
