@@ -3,22 +3,15 @@ package com.filenest.photo.service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.filenest.photo.MainActivity
-import com.filenest.photo.R
 import com.filenest.photo.data.SyncStateManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 @AndroidEntryPoint
 class MediaSyncService : Service() {
@@ -66,6 +59,7 @@ class MediaSyncService : Service() {
                 Log.d(TAG, "startForeground called")
                 doSync()
             }
+
             ACTION_STOP_SYNC -> {
                 Log.d(TAG, "ACTION_STOP_SYNC received")
                 stopSync()
@@ -112,33 +106,21 @@ class MediaSyncService : Service() {
     }
 
     private fun createNotificationChannel() {
-        Log.d(TAG, "createNotificationChannel")
         val channel = NotificationChannel(
             CHANNEL_ID,
             "媒体同步",
-            NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            description = "用于显示媒体文件同步进度"
-            setShowBadge(false)
-        }
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(channel)
     }
 
     private fun createNotification(content: String, progress: Int): Notification {
         Log.d(TAG, "createNotification: $content, progress: $progress")
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("媒体同步")
             .setContentText(content)
             .setSmallIcon(android.R.drawable.ic_popup_sync)
-            .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setProgress(100, progress, progress == 0)
             .build()
