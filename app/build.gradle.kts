@@ -119,6 +119,10 @@ dependencies {
     // OkHttp 日志拦截器（调试用）
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    // Paging 3
+    implementation("androidx.paging:paging-runtime-ktx:3.3.2")
+    implementation("androidx.paging:paging-compose:3.3.2")
+
     // ========== Local Unit Tests ==========
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
