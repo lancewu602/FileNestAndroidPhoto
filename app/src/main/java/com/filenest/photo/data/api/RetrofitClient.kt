@@ -41,7 +41,7 @@ class RetrofitClient @Inject constructor(
 
         OkHttpClient.Builder()
             .addInterceptor(tokenInterceptor)
-//            .addInterceptor(loggingInterceptor)
+            .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
