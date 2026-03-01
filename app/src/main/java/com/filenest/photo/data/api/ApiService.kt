@@ -1,5 +1,7 @@
 package com.filenest.photo.data.api
 
+import com.filenest.photo.data.model.MediaListItem
+import com.filenest.photo.data.model.PageData
 import okhttp3.MultipartBody
 import retrofit2.http.*
 
@@ -7,6 +9,14 @@ interface ApiService {
 
     @POST("api/user/login")
     suspend fun login(@Body request: LoginRequest): Ret<String>
+
+    // 获取媒体列表
+    @GET("/api/media/list")
+    suspend fun listMedia(
+        @Query("albumId") albumId: Int?,
+        @Query("pageNum") pageNum: Int,
+        @Query("pageSize") pageSize: Int,
+    ): Ret<PageData<MediaListItem>?>
 
     // 上传图片
     @Multipart
