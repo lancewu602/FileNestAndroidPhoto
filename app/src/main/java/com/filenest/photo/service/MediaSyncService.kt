@@ -74,8 +74,8 @@ class MediaSyncService : Service() {
                             UploadFailureReason.SERVER_ERROR -> "服务器错误"
                             UploadFailureReason.UNKNOWN -> "未知错误"
                         }
-                        Log.w(TAG, "上传失败: ${item.name}, 原因: $reasonText, 已同步 $syncedCount 个文件")
-                        updateNotification("同步失败: ${item.name} ($reasonText), 已同步 $syncedCount/$total 个文件")
+                        Log.w(TAG, "上传失败: $reasonText, 已同步 $syncedCount 个文件")
+                        updateNotification("同步失败: $reasonText, 已同步 $syncedCount/$total 个文件")
                         failed = true
                         break
                     }
