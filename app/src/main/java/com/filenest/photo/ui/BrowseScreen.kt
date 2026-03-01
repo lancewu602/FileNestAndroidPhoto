@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -24,7 +25,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.filenest.photo.data.model.MediaListItem
 import com.filenest.photo.viewmodel.BrowseViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +72,7 @@ fun BrowseScreen(
                     ) {
                         items(
                             count = pagingItems.itemCount,
-                            key = { index -> pagingItems[index]?.id ?: index }
+                            key = { index -> "${pagingItems[index]?.id}_$index" }
                         ) { index ->
                             val media = pagingItems[index]
                             media?.let {
@@ -99,8 +99,10 @@ fun BrowseScreen(
 
 @Composable
 private fun MediaGridItem(media: MediaListItem) {
+    val thumbnailUrl = "http://192.168.31.174:8916/api/preview/media/${media.thumbnailPath}"
+    android.util.Log.d("BrowseScreen", "thumbnailUrl=$thumbnailUrl")
     AsyncImage(
-        model = media.thumbnail,
+        model = thumbnailUrl,
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier.fillMaxSize()
