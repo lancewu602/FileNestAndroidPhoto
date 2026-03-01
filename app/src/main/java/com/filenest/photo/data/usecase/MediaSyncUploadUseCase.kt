@@ -158,16 +158,11 @@ class MediaSyncUploadUseCase @Inject constructor(
                 inputStream.use { stream ->
                     for (chunkIndex in effectiveStartChunkIndex until totalChunks) {
                         Log.d(TAG, "Uploading chunk $chunkIndex...")
-                        val chunkData = ByteArrayOutputStream().use { outputStream ->
-                            val buffer = ByteArray(CHUNK_SIZE)
-                            val bytesRead = stream.read(buffer)
-                            if (bytesRead > 0) {
-                                outputStream.write(buffer, 0, bytesRead)
-                            }
-                            outputStream.toByteArray()
-                        }
+                        val buffer = ByteArray(CHUNK_SIZE)
+                        val bytesRead = stream.read(buffer)
+                        if (bytesRead <= 0) break
 
-                        if (chunkData.isEmpty()) break
+                        val chunkData = buffer.copyOf(bytesRead)
 
                         val chunkPart = MultipartBody.Part.createFormData(
                             name = "chunk",
@@ -187,7 +182,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                         }
 
                         Log.i(TAG, "Chunk $chunkIndex uploaded successfully")
-                        SyncStateManager.setSyncProgressFile(chunkIndex / totalChunks.toFloat());
+                        SyncStateManager.setSyncProgressFile((chunkIndex + 1) / totalChunks.toFloat())
                     }
                 }
 
