@@ -60,15 +60,27 @@ class MediaSyncService : Service() {
                 val total = medias.size
                 Log.d(TAG, "开始同步: $total 个文件")
 
-                medias.forEachIndexed { index, item ->
-                    mediaSyncUploadUseCase.uploadMedia(item)
-                    val progress = (index + 1) * 100 / total
-                    updateNotification("已上传 (${index + 1}/${total})", progress)
-                    SyncStateManager.setSyncProgressInfo(index + 1, total, item.name)
+                var syncedCount = 0
+                var failed = false
+
+                for (item in medias) {
+                    val success = mediaSyncUploadUseCase.uploadMedia(item)
+                    if (!success) {
+                        Log.w(TAG, "上传失败: ${item.name}, 已同步 $syncedCount 个文件")
+                        updateNotification("同步失败: ${item.name}, 已同步 $syncedCount/$total 个文件")
+                        failed = true
+                        break
+                    }
+                    syncedCount++
+                    val progress = syncedCount * 100 / total
+                    updateNotification("已上传 ($syncedCount/$total)", progress)
+                    SyncStateManager.setSyncProgressInfo(syncedCount, total, item.name)
                 }
 
-                Log.d(TAG, "同步完成")
-                updateNotification("同步完成")
+                if (!failed) {
+                    Log.d(TAG, "同步完成")
+                    updateNotification("同步完成")
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "同步失败", e)
                 updateNotification("同步失败: ${e.message}")
