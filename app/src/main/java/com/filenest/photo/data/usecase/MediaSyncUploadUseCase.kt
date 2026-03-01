@@ -11,7 +11,6 @@ import com.filenest.photo.data.api.MergeResultRequest
 import com.filenest.photo.data.api.Ret
 import com.filenest.photo.data.api.RetrofitClient
 import com.filenest.photo.data.api.isRetOk
-import com.filenest.photo.data.api.retMsg
 import com.filenest.photo.data.model.MediaSyncItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -28,14 +27,7 @@ import javax.inject.Singleton
 sealed class UploadResult {
     data object Success : UploadResult()
 
-    data class Failure(val reason: UploadFailureReason, val message: String) : UploadResult()
-}
-
-enum class UploadFailureReason {
-    NETWORK_ERROR,
-    FILE_ERROR,
-    SERVER_ERROR,
-    UNKNOWN,
+    data class Failure(val message: String) : UploadResult()
 }
 
 @Singleton
@@ -77,20 +69,6 @@ class MediaSyncUploadUseCase @Inject constructor(
         return result
     }
 
-    private fun classifyException(e: Exception): UploadFailureReason {
-        return when (e) {
-            is java.io.IOException -> UploadFailureReason.NETWORK_ERROR
-            is java.net.SocketTimeoutException -> UploadFailureReason.NETWORK_ERROR
-            is java.net.UnknownHostException -> UploadFailureReason.NETWORK_ERROR
-            is java.net.ConnectException -> UploadFailureReason.NETWORK_ERROR
-
-            is SecurityException -> UploadFailureReason.FILE_ERROR
-            is java.io.FileNotFoundException -> UploadFailureReason.FILE_ERROR
-
-            else -> UploadFailureReason.UNKNOWN
-        }
-    }
-
     private suspend fun uploadMediaDirect(item: MediaSyncItem): UploadResult {
         return withContext(Dispatchers.IO) {
             try {
@@ -98,7 +76,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                 SyncStateManager.setSyncProgressFile(0F)
                 val uri = item.contentUri.toUri()
                 val inputStream = context.contentResolver.openInputStream(uri)
-                    ?: return@withContext UploadResult.Failure(UploadFailureReason.FILE_ERROR, "Cannot open input stream for URI")
+                    ?: return@withContext UploadResult.Failure("Cannot open input stream for URI")
 
                 val byteArray = ByteArrayOutputStream().use { outputStream ->
                     inputStream.use { inputStream.copyTo(outputStream) }
@@ -128,12 +106,12 @@ class MediaSyncUploadUseCase @Inject constructor(
                     SyncStateManager.setSyncProgressFile(1F)
                     UploadResult.Success
                 } else {
-                    Log.e(TAG, "Direct upload failed: ${retMsg(ret)}")
-                    UploadResult.Failure(UploadFailureReason.SERVER_ERROR, retMsg(ret) ?: "Server error")
+                    Log.e(TAG, "Direct upload failed: ${ret.message ?: "未知异常"}")
+                    UploadResult.Failure(ret.message ?: "Server error")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Direct upload error: ${e.message}", e)
-                UploadResult.Failure(classifyException(e), e.message ?: "Unknown error")
+                UploadResult.Failure(e.message ?: "Unknown error")
             }
         }
     }
@@ -155,7 +133,7 @@ class MediaSyncUploadUseCase @Inject constructor(
 
                 val uri = item.contentUri.toUri()
                 var inputStream = context.contentResolver.openInputStream(uri)
-                    ?: return@withContext UploadResult.Failure(UploadFailureReason.FILE_ERROR, "Cannot open input stream for URI")
+                    ?: return@withContext UploadResult.Failure("Cannot open input stream for URI")
 
                 var effectiveStartChunkIndex = startChunkIndex
 
@@ -165,14 +143,14 @@ class MediaSyncUploadUseCase @Inject constructor(
                         Log.w(TAG, "Stream skip incomplete, restarting from 0")
                         inputStream.close()
                         inputStream = context.contentResolver.openInputStream(uri)
-                            ?: return@withContext UploadResult.Failure(UploadFailureReason.FILE_ERROR, "Cannot reopen input stream")
+                            ?: return@withContext UploadResult.Failure("Cannot reopen input stream")
                         effectiveStartChunkIndex = 0
                     }
                 } catch (e: Exception) {
                     Log.w(TAG, "Stream skip failed: ${e.message}, restarting from 0")
                     inputStream.close()
                     inputStream = context.contentResolver.openInputStream(uri)
-                        ?: return@withContext UploadResult.Failure(UploadFailureReason.FILE_ERROR, "Cannot reopen input stream")
+                        ?: return@withContext UploadResult.Failure("Cannot reopen input stream")
                     effectiveStartChunkIndex = 0
                 }
 
@@ -204,8 +182,8 @@ class MediaSyncUploadUseCase @Inject constructor(
                         )
 
                         if (!isRetOk(uploadRet)) {
-                            Log.e(TAG, "Chunk $chunkIndex upload failed: ${retMsg(uploadRet)}")
-                            return@withContext UploadResult.Failure(UploadFailureReason.SERVER_ERROR, retMsg(uploadRet) ?: "Chunk upload failed")
+                            Log.e(TAG, "Chunk $chunkIndex upload failed: ${uploadRet.message ?: "未知异常"}")
+                            return@withContext UploadResult.Failure(uploadRet.message ?: "Chunk upload failed")
                         }
 
                         Log.i(TAG, "Chunk $chunkIndex uploaded successfully")
@@ -216,8 +194,8 @@ class MediaSyncUploadUseCase @Inject constructor(
                 Log.i(TAG, "All chunks uploaded, notifying merge: fileId=$fileId, totalChunks=$totalChunks")
                 val notifyRet = notifyMergeChunks(item, fileId, totalChunks)
                 if (!isRetOk(notifyRet)) {
-                    Log.e(TAG, "Notify merge failed: ${retMsg(notifyRet)}")
-                    return@withContext UploadResult.Failure(UploadFailureReason.SERVER_ERROR, retMsg(notifyRet) ?: "Notify merge failed")
+                    Log.e(TAG, "Notify merge failed: ${notifyRet.message ?: "未知异常"}")
+                    return@withContext UploadResult.Failure(notifyRet.message ?: "Notify merge failed")
                 }
                 Log.i(TAG, "Notify merge success, start polling merge result")
 
@@ -247,7 +225,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                                     Log.w(TAG, "Merge failed: ${result.error}, failure count: $failureCount")
                                     if (failureCount >= MAX_POLL_FAILURES) {
                                         Log.e(TAG, "Merge failed after $failureCount attempts")
-                                        return@withContext UploadResult.Failure(UploadFailureReason.SERVER_ERROR, result.error ?: "Merge failed")
+                                        return@withContext UploadResult.Failure(result.error)
                                     }
                                 }
 
@@ -260,7 +238,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                             Log.w(TAG, "Poll ret failed, failure count: $failureCount")
                             if (failureCount >= MAX_POLL_FAILURES) {
                                 Log.e(TAG, "Poll ret failed after $failureCount attempts")
-                                return@withContext UploadResult.Failure(UploadFailureReason.SERVER_ERROR, "Poll merge result failed")
+                                return@withContext UploadResult.Failure("Poll merge result failed")
                             }
                         }
                     } catch (e: Exception) {
@@ -268,16 +246,16 @@ class MediaSyncUploadUseCase @Inject constructor(
                         Log.w(TAG, "Poll exception: ${e.message}, failure count: $failureCount")
                         if (failureCount >= MAX_POLL_FAILURES) {
                             Log.e(TAG, "Poll exception after $failureCount attempts")
-                            return@withContext UploadResult.Failure(classifyException(e), e.message ?: "Poll exception")
+                            return@withContext UploadResult.Failure(e.message ?: "Poll exception")
                         }
                     }
                 }
 
                 Log.e(TAG, "Merge poll timeout, pollCount=$pollCount, failureCount=$failureCount")
-                UploadResult.Failure(UploadFailureReason.SERVER_ERROR, "Merge poll timeout")
+                UploadResult.Failure("Merge poll timeout")
             } catch (e: Exception) {
                 Log.e(TAG, "Chunked upload error: uri=${item.contentUri}, error=${e.message}", e)
-                UploadResult.Failure(classifyException(e), e.message ?: "Unknown error")
+                UploadResult.Failure(e.message ?: "Unknown error")
             }
         }
     }

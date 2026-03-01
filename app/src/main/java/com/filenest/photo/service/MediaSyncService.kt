@@ -13,7 +13,6 @@ import com.filenest.photo.R
 import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.data.usecase.MediaSyncFetchUseCase
 import com.filenest.photo.data.usecase.MediaSyncUploadUseCase
-import com.filenest.photo.data.usecase.UploadFailureReason
 import com.filenest.photo.data.usecase.UploadResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -68,14 +67,8 @@ class MediaSyncService : Service() {
                 for (item in medias) {
                     val result = mediaSyncUploadUseCase.uploadMedia(item)
                     if (result is UploadResult.Failure) {
-                        val reasonText = when (result.reason) {
-                            UploadFailureReason.NETWORK_ERROR -> "网络错误"
-                            UploadFailureReason.FILE_ERROR -> "文件错误"
-                            UploadFailureReason.SERVER_ERROR -> "服务器错误"
-                            UploadFailureReason.UNKNOWN -> "未知错误"
-                        }
-                        Log.w(TAG, "上传失败: $reasonText, 已同步 $syncedCount 个文件")
-                        updateNotification("同步失败: $reasonText, 已同步 $syncedCount/$total 个文件")
+                        Log.w(TAG, "上传失败: ${result.message}, 已同步 $syncedCount 个文件")
+                        updateNotification("同步失败: ${result.message}, 已同步 $syncedCount/$total 个文件")
                         failed = true
                         break
                     }
