@@ -22,7 +22,7 @@ class BrowseViewModel @Inject constructor(
         config = PagingConfig(
             pageSize = 20,
             enablePlaceholders = false,
-            prefetchDistance = 5,
+            prefetchDistance = 50,
         ),
         pagingSourceFactory = {
             MediaPagingSource(
