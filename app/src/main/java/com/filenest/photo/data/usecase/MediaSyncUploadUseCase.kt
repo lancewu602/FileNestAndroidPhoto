@@ -77,21 +77,15 @@ class MediaSyncUploadUseCase @Inject constructor(
         return result
     }
 
-    suspend fun uploadMediaSimple(item: MediaSyncItem): Boolean {
-        return uploadMedia(item) is UploadResult.Success
-    }
-
     private fun classifyException(e: Exception): UploadFailureReason {
-        val msg = e.message ?: return UploadFailureReason.UNKNOWN
-        return when {
-            msg.contains("Unable to resolve host") ||
-            msg.contains("Connection reset") ||
-            msg.contains("ConnectException") ||
-            msg.contains("SocketTimeoutException") -> UploadFailureReason.NETWORK_ERROR
+        return when (e) {
+            is java.io.IOException -> UploadFailureReason.NETWORK_ERROR
+            is java.net.SocketTimeoutException -> UploadFailureReason.NETWORK_ERROR
+            is java.net.UnknownHostException -> UploadFailureReason.NETWORK_ERROR
+            is java.net.ConnectException -> UploadFailureReason.NETWORK_ERROR
 
-            msg.contains("permission") ||
-            msg.contains("SecurityException") ||
-            msg.contains("FileNotFoundException") -> UploadFailureReason.FILE_ERROR
+            is SecurityException -> UploadFailureReason.FILE_ERROR
+            is java.io.FileNotFoundException -> UploadFailureReason.FILE_ERROR
 
             else -> UploadFailureReason.UNKNOWN
         }
