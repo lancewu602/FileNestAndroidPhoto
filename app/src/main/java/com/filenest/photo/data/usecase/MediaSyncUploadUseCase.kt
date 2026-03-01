@@ -3,6 +3,7 @@ package com.filenest.photo.data.usecase
 import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
+import com.filenest.photo.data.AppPrefKeys
 import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.data.api.CheckChunkRequest
 import com.filenest.photo.data.api.MergeChunkRequest
@@ -47,13 +48,20 @@ class MediaSyncUploadUseCase @Inject constructor(
     }
 
     suspend fun uploadMedia(item: MediaSyncItem): Boolean {
-        return if (item.size > CHUNK_THRESHOLD) {
+        val success = if (item.size > CHUNK_THRESHOLD) {
             Log.i(TAG, "Start upload chunked: ${item.contentUri}")
             uploadMediaChunked(item)
         } else {
             Log.i(TAG, "Start upload direct: ${item.contentUri}")
             uploadMediaDirect(item)
         }
+
+        if (success) {
+            AppPrefKeys.setMediaStoreLastGen(context, item.generationModified)
+            Log.d(TAG, "Updated lastGen to ${item.generationModified}")
+        }
+
+        return success
     }
 
     private suspend fun uploadMediaDirect(item: MediaSyncItem): Boolean {
