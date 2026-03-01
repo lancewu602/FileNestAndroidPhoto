@@ -53,23 +53,29 @@ class MediaSyncService : Service() {
             return START_STICKY
         }
         syncJob = serviceScope.launch {
-            SyncStateManager.setSyncing(true)
+            try {
+                SyncStateManager.setSyncing(true)
 
-            val medias = mediaSyncFetchUseCase.fetchMedias()
-            val total = medias.size
-            Log.d(TAG, "开始同步: $total 个文件")
+                val medias = mediaSyncFetchUseCase.fetchMedias()
+                val total = medias.size
+                Log.d(TAG, "开始同步: $total 个文件")
 
-            medias.forEachIndexed { index, item ->
-                mediaSyncUploadUseCase.uploadMedia(item)
-                val progress = (index + 1) * 100 / total
-                updateNotification("已上传 (${index + 1}/${total})", progress)
-                SyncStateManager.setSyncProgressInfo(index + 1, total, item.name)
+                medias.forEachIndexed { index, item ->
+                    mediaSyncUploadUseCase.uploadMedia(item)
+                    val progress = (index + 1) * 100 / total
+                    updateNotification("已上传 (${index + 1}/${total})", progress)
+                    SyncStateManager.setSyncProgressInfo(index + 1, total, item.name)
+                }
+
+                Log.d(TAG, "同步完成")
+                updateNotification("同步完成")
+            } catch (e: Exception) {
+                Log.e(TAG, "同步失败", e)
+                updateNotification("同步失败: ${e.message}")
+            } finally {
+                SyncStateManager.setSyncing(false)
+                stopSelf()
             }
-
-            Log.d(TAG, "同步完成")
-            updateNotification("同步完成")
-            SyncStateManager.setSyncing(false)
-            stopSelf()
         }
         return START_STICKY
     }

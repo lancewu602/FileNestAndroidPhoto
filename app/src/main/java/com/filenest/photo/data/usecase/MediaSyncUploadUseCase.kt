@@ -47,10 +47,11 @@ class MediaSyncUploadUseCase @Inject constructor(
     }
 
     suspend fun uploadMedia(item: MediaSyncItem): Boolean {
-        Log.i(TAG, "uploadMedia: $item")
         return if (item.size > CHUNK_THRESHOLD) {
+            Log.i(TAG, "Start upload chunked: ${item.contentUri}")
             uploadMediaChunked(item)
         } else {
+            Log.i(TAG, "Start upload direct: ${item.contentUri}")
             uploadMediaDirect(item)
         }
     }
