@@ -49,6 +49,7 @@ fun BrowseScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
+
                 pagingItems.loadState.refresh is LoadState.Error -> {
                     val error = pagingItems.loadState.refresh as LoadState.Error
                     Text(
@@ -56,12 +57,14 @@ fun BrowseScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
+
                 pagingItems.itemCount == 0 -> {
                     Text(
                         text = "暂无数据",
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
+
                 else -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
@@ -100,7 +103,6 @@ fun BrowseScreen(
 @Composable
 private fun MediaGridItem(media: MediaListItem) {
     val thumbnailUrl = "http://192.168.31.174:8916/api/preview/media/${media.thumbnailPath}"
-    android.util.Log.d("BrowseScreen", "thumbnailUrl=$thumbnailUrl")
     AsyncImage(
         model = thumbnailUrl,
         contentDescription = null,

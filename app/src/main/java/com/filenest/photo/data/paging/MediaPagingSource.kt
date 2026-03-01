@@ -33,14 +33,13 @@ class MediaPagingSource(
             Log.d(TAG, "page=$page, ret=$ret")
             if (isRetOk(ret) && ret.data != null) {
                 val data = ret.data
-                Log.d(TAG, "records size=${data.records.size}, current=${data.current}, pages=${data.pages}")
                 LoadResult.Page(
                     data = data.records,
                     prevKey = if (page == 1) null else page - 1,
                     nextKey = if (page < data.pages) page + 1 else null
                 )
             } else {
-                LoadResult.Error(Exception("code=${ret?.code}, msg=${ret?.message}, data=${ret?.data}"))
+                LoadResult.Error(Exception("code=${ret.code}, msg=${ret.message}, data=${ret.data}"))
             }
         } catch (e: Exception) {
             LoadResult.Error(e)
