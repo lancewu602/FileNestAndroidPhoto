@@ -117,9 +117,9 @@ fun SyncScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                enabled = !isSyncing
+                enabled = !isSyncing && pendingSyncCount > 0
             ) {
-                Text(if (isSyncing) "同步中..." else "开始同步")
+                Text(if (isSyncing) "同步中..." else if (pendingSyncCount > 0) "开始同步" else "无需同步")
             }
         }
     }
