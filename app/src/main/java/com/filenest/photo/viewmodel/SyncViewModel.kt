@@ -4,8 +4,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.filenest.photo.data.AppPrefKeys
 import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.service.MediaSyncService
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,11 +46,19 @@ class SyncViewModel @Inject constructor(
 
     fun loadSyncInfo() {
         viewModelScope.launch {
-            _syncBasicInfo.value = SyncBasicInfo(
-                lastSyncTime = "2024-01-15 14:30:00",
-                serverMediaCount = 1234,
-                pendingSyncCount = 56
-            )
+            AppPrefKeys.getLatestSyncTime(context).collect { timestamp ->
+                val lastSyncTimeStr = if (timestamp > 0) {
+                    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    sdf.format(Date(timestamp))
+                } else {
+                    "从未同步"
+                }
+                _syncBasicInfo.value = SyncBasicInfo(
+                    lastSyncTime = lastSyncTimeStr,
+                    serverMediaCount = 1234,
+                    pendingSyncCount = 56
+                )
+            }
         }
     }
 
