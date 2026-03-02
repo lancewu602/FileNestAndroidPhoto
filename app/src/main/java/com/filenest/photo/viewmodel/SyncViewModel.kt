@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.filenest.photo.data.AppPrefKeys
+import com.filenest.photo.data.api.RetrofitClient
+import com.filenest.photo.data.api.isRetOk
 import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.service.MediaSyncService
 import java.text.SimpleDateFormat
@@ -33,7 +35,8 @@ data class SyncProgressInfo(
 
 @HiltViewModel
 class SyncViewModel @Inject constructor(
-    @param:ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
+    private val retrofitClient: RetrofitClient
 ) : ViewModel() {
 
     private val _syncBasicInfo = MutableStateFlow(SyncBasicInfo())
@@ -53,9 +56,17 @@ class SyncViewModel @Inject constructor(
                 } else {
                     "从未同步"
                 }
+
+                val serverMediaCount = try {
+                    val ret = retrofitClient.getApiService().countMedia()
+                    if (isRetOk(ret)) ret.data?.toInt() ?: 0 else 0
+                } catch (e: Exception) {
+                    0
+                }
+
                 _syncBasicInfo.value = SyncBasicInfo(
                     lastSyncTime = lastSyncTimeStr,
-                    serverMediaCount = 1234,
+                    serverMediaCount = serverMediaCount,
                     pendingSyncCount = 56
                 )
             }
