@@ -4,9 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.filenest.photo.viewmodel.MainViewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
@@ -17,6 +19,9 @@ sealed class Screen(val route: String, val title: String) {
     data object Sync : Screen("sync", "同步")
     data object Settings : Screen("settings", "设置")
     data object AlbumSync : Screen("album_sync", "配置同步相册")
+    data object Detail : Screen("detail/{mediaId}", "详情") {
+        fun createRoute(mediaId: Int) = "detail/$mediaId"
+    }
 }
 
 @Composable
@@ -37,5 +42,11 @@ fun MainScreen() {
         composable(Screen.Sync.route) { SyncScreen(navController) }
         composable(Screen.Settings.route) { SettingScreen(navController) }
         composable(Screen.AlbumSync.route) { AlbumSyncScreen(navController) }
+        composable(
+            route = Screen.Detail.route,
+            arguments = listOf(navArgument("mediaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            DetailScreen(navController)
+        }
     }
 }

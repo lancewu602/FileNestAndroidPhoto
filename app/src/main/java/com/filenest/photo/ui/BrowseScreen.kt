@@ -1,5 +1,6 @@
 package com.filenest.photo.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -79,7 +80,12 @@ fun BrowseScreen(
                         ) { index ->
                             val media = pagingItems[index]
                             media?.let {
-                                MediaGridItem(media = it)
+                                MediaGridItem(
+                                    media = it,
+                                    onClick = {
+                                        navController.navigate(Screen.Detail.createRoute(it.id))
+                                    }
+                                )
                             }
                         }
 
@@ -101,12 +107,17 @@ fun BrowseScreen(
 }
 
 @Composable
-private fun MediaGridItem(media: MediaListItem) {
+private fun MediaGridItem(
+    media: MediaListItem,
+    onClick: () -> Unit
+) {
     val thumbnailUrl = "http://172.25.20.10:8916/api/preview/media/${media.thumbnailPath}"
     AsyncImage(
         model = thumbnailUrl,
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(onClick = onClick)
     )
 }
