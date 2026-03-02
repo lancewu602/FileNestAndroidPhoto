@@ -9,22 +9,16 @@ import com.filenest.photo.data.api.RetrofitClient
 import com.filenest.photo.data.api.isRetOk
 import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.service.MediaSyncService
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
-
-data class SyncBasicInfo(
-    val lastSyncTime: String = "",
-    val serverMediaCount: Int = 0,
-    val pendingSyncCount: Int = 0
-)
 
 data class SyncProgressInfo(
     val total: Int = 0,
@@ -39,8 +33,14 @@ class SyncViewModel @Inject constructor(
     private val retrofitClient: RetrofitClient
 ) : ViewModel() {
 
-    private val _syncBasicInfo = MutableStateFlow(SyncBasicInfo())
-    val syncBasicInfo: StateFlow<SyncBasicInfo> = _syncBasicInfo.asStateFlow()
+    private val _lastSyncTime = MutableStateFlow("")
+    val lastSyncTime: StateFlow<String> = _lastSyncTime.asStateFlow()
+
+    private val _serverMediaCount = MutableStateFlow(0)
+    val serverMediaCount: StateFlow<Int> = _serverMediaCount.asStateFlow()
+
+    private val _pendingSyncCount = MutableStateFlow(0)
+    val pendingSyncCount: StateFlow<Int> = _pendingSyncCount.asStateFlow()
 
     val isSyncing: StateFlow<Boolean> = SyncStateManager.isSyncing
     val syncProgressInfo: StateFlow<SyncProgressInfo> = SyncStateManager.syncProgressInfo
@@ -50,25 +50,20 @@ class SyncViewModel @Inject constructor(
     fun loadSyncInfo() {
         viewModelScope.launch {
             AppPrefKeys.getLatestSyncTime(context).collect { timestamp ->
-                val lastSyncTimeStr = if (timestamp > 0) {
+                _lastSyncTime.value = if (timestamp > 0) {
                     val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                     sdf.format(Date(timestamp))
                 } else {
                     "从未同步"
                 }
-
-                val serverMediaCount = try {
-                    val ret = retrofitClient.getApiService().countMedia()
-                    if (isRetOk(ret)) ret.data?.toInt() ?: 0 else 0
-                } catch (e: Exception) {
-                    0
-                }
-
-                _syncBasicInfo.value = SyncBasicInfo(
-                    lastSyncTime = lastSyncTimeStr,
-                    serverMediaCount = serverMediaCount,
-                    pendingSyncCount = 56
-                )
+            }
+        }
+        viewModelScope.launch {
+            try {
+                val ret = retrofitClient.getApiService().countMedia()
+                _serverMediaCount.value = if (isRetOk(ret)) ret.data?.toInt() ?: 0 else 0
+            } catch (e: Exception) {
+                _serverMediaCount.value = 0
             }
         }
     }

@@ -31,7 +31,9 @@ import com.filenest.photo.viewmodel.SyncViewModel
 @Composable
 fun SyncScreen(navController: NavHostController) {
     val viewModel: SyncViewModel = hiltViewModel()
-    val syncBasicInfo by viewModel.syncBasicInfo.collectAsState()
+    val lastSyncTime by viewModel.lastSyncTime.collectAsState()
+    val serverMediaCount by viewModel.serverMediaCount.collectAsState()
+    val pendingSyncCount by viewModel.pendingSyncCount.collectAsState()
     val isSyncing by viewModel.isSyncing.collectAsState()
     val syncProgressInfo by viewModel.syncProgressInfo.collectAsState()
     val syncProgressFile by viewModel.syncProgressFile.collectAsState()
@@ -65,11 +67,11 @@ fun SyncScreen(navController: NavHostController) {
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
                     )
-                    TextContentPair(title = "上次同步时间", content = syncBasicInfo.lastSyncTime)
+                    TextContentPair(title = "上次同步时间", content = lastSyncTime)
                     HorizontalDivider()
-                    TextContentPair(title = "服务端媒体数量", content = syncBasicInfo.serverMediaCount.toString())
+                    TextContentPair(title = "服务端媒体数量", content = serverMediaCount.toString())
                     HorizontalDivider()
-                    TextContentPair(title = "待同步文件数量", content = syncBasicInfo.pendingSyncCount.toString())
+                    TextContentPair(title = "待同步文件数量", content = pendingSyncCount.toString())
                     HorizontalDivider()
 
                     Text(
