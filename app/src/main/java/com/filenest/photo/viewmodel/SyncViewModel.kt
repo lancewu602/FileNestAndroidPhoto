@@ -129,4 +129,12 @@ class SyncViewModel @Inject constructor(
         }
         context.startForegroundService(Intent(context, MediaSyncService::class.java))
     }
+
+    fun resetSync() {
+        viewModelScope.launch {
+            AppPrefKeys.setMediaStoreLastGen(context, 0)
+            AppPrefKeys.setLatestSyncTime(context, 0)
+            loadSyncInfo()
+        }
+    }
 }

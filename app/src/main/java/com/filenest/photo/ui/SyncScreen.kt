@@ -70,7 +70,10 @@ fun SyncScreen(navController: NavHostController) {
                     ) {
                         DropdownMenuItem(
                             text = { Text("重置同步") },
-                            onClick = { showMenu = false }
+                            onClick = {
+                                showMenu = false
+                                viewModel.resetSync()
+                            }
                         )
                         DropdownMenuItem(
                             text = { Text("重置当前为最新同步") },
