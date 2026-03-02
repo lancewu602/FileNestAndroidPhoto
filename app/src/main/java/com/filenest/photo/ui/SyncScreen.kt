@@ -69,14 +69,14 @@ fun SyncScreen(navController: NavHostController) {
                         onDismissRequest = { showMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("重置同步") },
+                            text = { Text("重置同步进度") },
                             onClick = {
                                 showMenu = false
                                 viewModel.resetSync()
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("重置当前为最新同步") },
+                            text = { Text("设为最新状态") },
                             onClick = {
                                 showMenu = false
                                 viewModel.resetToLatestSync()
