@@ -20,9 +20,9 @@ class BrowseViewModel @Inject constructor(
 
     val mediaList: Flow<PagingData<MediaListItem>> = Pager(
         config = PagingConfig(
-            pageSize = 20,
+            pageSize = 50,
             enablePlaceholders = false,
-            prefetchDistance = 50,
+            prefetchDistance = 100,
         ),
         pagingSourceFactory = {
             MediaPagingSource(

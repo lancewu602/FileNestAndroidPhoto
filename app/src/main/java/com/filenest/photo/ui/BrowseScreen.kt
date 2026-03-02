@@ -102,7 +102,7 @@ fun BrowseScreen(
 
 @Composable
 private fun MediaGridItem(media: MediaListItem) {
-    val thumbnailUrl = "http://192.168.31.174:8916/api/preview/media/${media.thumbnailPath}"
+    val thumbnailUrl = "http://172.25.20.10:8916/api/preview/media/${media.thumbnailPath}"
     AsyncImage(
         model = thumbnailUrl,
         contentDescription = null,
