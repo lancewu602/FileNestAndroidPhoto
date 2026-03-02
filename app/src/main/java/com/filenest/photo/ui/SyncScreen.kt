@@ -10,8 +10,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -48,6 +50,8 @@ fun SyncScreen(navController: NavHostController) {
     val syncProgressFile by viewModel.syncProgressFile.collectAsState()
     val syncProgressStep by viewModel.syncProgressStep.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
+    var showResetSyncDialog by remember { mutableStateOf(false) }
+    var showResetToLatestDialog by remember { mutableStateOf(false) }
 
     val navBackStackEntry by navController.currentBackStackEntryFlow.collectAsState(initial = null)
     LaunchedEffect(navBackStackEntry) {
@@ -72,14 +76,14 @@ fun SyncScreen(navController: NavHostController) {
                             text = { Text("重置同步进度") },
                             onClick = {
                                 showMenu = false
-                                viewModel.resetSync()
+                                showResetSyncDialog = true
                             }
                         )
                         DropdownMenuItem(
                             text = { Text("设为最新状态") },
                             onClick = {
                                 showMenu = false
-                                viewModel.resetToLatestSync()
+                                showResetToLatestDialog = true
                             }
                         )
                     }
@@ -88,6 +92,46 @@ fun SyncScreen(navController: NavHostController) {
         },
         bottomBar = { BottomNavBar(navController) }
     ) { innerPadding ->
+        if (showResetSyncDialog) {
+            AlertDialog(
+                onDismissRequest = { showResetSyncDialog = false },
+                title = { Text("确认重置同步进度") },
+                text = { Text("此操作将清空同步进度记录，重新开始同步所有文件。确定要继续吗？") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showResetSyncDialog = false
+                        viewModel.resetSync()
+                    }) {
+                        Text("确认")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showResetSyncDialog = false }) {
+                        Text("取消")
+                    }
+                }
+            )
+        }
+        if (showResetToLatestDialog) {
+            AlertDialog(
+                onDismissRequest = { showResetToLatestDialog = false },
+                title = { Text("确认设为最新状态") },
+                text = { Text("此操作将跳过当前待同步的文件，将同步状态设为最新。确定要继续吗？") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showResetToLatestDialog = false
+                        viewModel.resetToLatestSync()
+                    }) {
+                        Text("确认")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showResetToLatestDialog = false }) {
+                        Text("取消")
+                    }
+                }
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
