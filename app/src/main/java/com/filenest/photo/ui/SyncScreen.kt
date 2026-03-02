@@ -8,9 +8,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,7 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -39,6 +47,7 @@ fun SyncScreen(navController: NavHostController) {
     val syncProgressInfo by viewModel.syncProgressInfo.collectAsState()
     val syncProgressFile by viewModel.syncProgressFile.collectAsState()
     val syncProgressStep by viewModel.syncProgressStep.collectAsState()
+    var showMenu by remember { mutableStateOf(false) }
 
     val navBackStackEntry by navController.currentBackStackEntryFlow.collectAsState(initial = null)
     LaunchedEffect(navBackStackEntry) {
@@ -48,7 +57,29 @@ fun SyncScreen(navController: NavHostController) {
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("同步") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("同步") },
+                actions = {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "菜单")
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("重置同步") },
+                            onClick = { showMenu = false }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("重置当前为最新同步") },
+                            onClick = { showMenu = false }
+                        )
+                    }
+                }
+            )
+        },
         bottomBar = { BottomNavBar(navController) }
     ) { innerPadding ->
         Column(
