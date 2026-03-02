@@ -4,12 +4,21 @@ import com.filenest.photo.data.model.MediaDetailItem
 import com.filenest.photo.data.model.MediaListItem
 import com.filenest.photo.data.model.PageData
 import okhttp3.MultipartBody
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
+import retrofit2.http.Query
 
 interface ApiService {
 
     @POST("api/user/login")
     suspend fun login(@Body request: LoginRequest): Ret<String>
+
+    // 统计媒体数量
+    @GET("/api/media/count")
+    suspend fun countMedia(): Ret<Long>
 
     // 获取媒体列表
     @GET("/api/media/list")
