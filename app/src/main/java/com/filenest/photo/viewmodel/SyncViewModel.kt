@@ -137,4 +137,13 @@ class SyncViewModel @Inject constructor(
             loadSyncInfo()
         }
     }
+
+    fun resetToLatestSync() {
+        viewModelScope.launch {
+            val generation = MediaStore.getGeneration(context, MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            AppPrefKeys.setMediaStoreLastGen(context, generation)
+            AppPrefKeys.setLatestSyncTime(context, System.currentTimeMillis())
+            loadSyncInfo()
+        }
+    }
 }
