@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -39,8 +40,11 @@ fun SyncScreen(navController: NavHostController) {
     val syncProgressFile by viewModel.syncProgressFile.collectAsState()
     val syncProgressStep by viewModel.syncProgressStep.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadSyncInfo()
+    val navBackStackEntry by navController.currentBackStackEntryFlow.collectAsState(initial = null)
+    LaunchedEffect(navBackStackEntry) {
+        if (navBackStackEntry?.destination?.route == Screen.Sync.route) {
+            viewModel.loadSyncInfo()
+        }
     }
 
     Scaffold(
