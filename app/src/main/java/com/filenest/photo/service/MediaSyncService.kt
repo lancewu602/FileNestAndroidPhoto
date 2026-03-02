@@ -5,16 +5,19 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.filenest.photo.R
+import com.filenest.photo.data.AppPrefKeys
 import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.data.usecase.MediaSyncFetchUseCase
 import com.filenest.photo.data.usecase.MediaSyncUploadUseCase
 import com.filenest.photo.data.usecase.UploadResult
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -86,6 +89,7 @@ class MediaSyncService : Service() {
                 Log.e(TAG, "同步失败", e)
                 updateNotification("同步失败: ${e.message}")
             } finally {
+                AppPrefKeys.setLatestSyncTime(applicationContext, System.currentTimeMillis())
                 SyncStateManager.setSyncing(false)
                 stopSelf()
             }
