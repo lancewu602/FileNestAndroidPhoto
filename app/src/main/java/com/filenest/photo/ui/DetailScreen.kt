@@ -49,7 +49,6 @@ fun DetailScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
         ) {
             when {
                 uiState.isLoading -> {
