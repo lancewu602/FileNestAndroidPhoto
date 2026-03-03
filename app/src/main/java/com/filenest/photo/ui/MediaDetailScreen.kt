@@ -9,10 +9,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
@@ -22,7 +24,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,12 +55,31 @@ fun DetailScreen(
     val context = LocalContext.current
     val activity = context as? Activity
 
+    DisposableEffect(Unit) {
+        activity?.let {
+            val window = it.window
+            WindowCompat.getInsetsController(window, window.decorView).apply {
+                isAppearanceLightStatusBars = false
+            }
+        }
+        onDispose {
+            activity?.let {
+                val window = it.window
+                WindowCompat.getInsetsController(window, window.decorView).apply {
+                    isAppearanceLightStatusBars = true
+                }
+            }
+        }
+    }
+
     BackHandler(enabled = !isSystemUiVisible) {
         isSystemUiVisible = true
         activity?.let {
             val window = it.window
-            val controller = WindowCompat.getInsetsController(window, window.decorView)
-            controller.show(WindowInsets.Type.systemBars())
+            WindowCompat.getInsetsController(window, window.decorView).apply {
+                show(WindowInsets.Type.systemBars())
+                isAppearanceLightStatusBars = true
+            }
         }
         navController.popBackStack()
     }
@@ -69,6 +92,7 @@ fun DetailScreen(
             controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             if (isSystemUiVisible) {
                 controller.show(WindowInsets.Type.systemBars())
+                controller.isAppearanceLightStatusBars = false
             } else {
                 controller.hide(WindowInsets.Type.systemBars())
             }
@@ -83,15 +107,22 @@ fun DetailScreen(
                 exit = slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(300))
             ) {
                 TopAppBar(
-                    title = { Text("详情") },
+                    title = { Text("详情", color = Color.White) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Black,
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White
+                    ),
                     navigationIcon = {
                         IconButton(onClick = {
                             if (!isSystemUiVisible) {
                                 isSystemUiVisible = true
                                 activity?.let {
                                     val window = it.window
-                                    val controller = WindowCompat.getInsetsController(window, window.decorView)
-                                    controller.show(WindowInsets.Type.systemBars())
+                                    WindowCompat.getInsetsController(window, window.decorView).apply {
+                                        show(WindowInsets.Type.systemBars())
+                                        isAppearanceLightStatusBars = false
+                                    }
                                 }
                             }
                             navController.popBackStack()
@@ -109,6 +140,7 @@ fun DetailScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.Black)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
