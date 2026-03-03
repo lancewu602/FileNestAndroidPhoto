@@ -1,9 +1,5 @@
 package com.filenest.photo.ui.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,19 +35,10 @@ fun ProgressContentPair(
                 text = title,
                 style = MaterialTheme.typography.bodyMedium
             )
-            AnimatedContent(
-                targetState = progressText,
-                transitionSpec = {
-                    slideInVertically { height -> height } togetherWith
-                        slideOutVertically { height -> -height }
-                },
-                label = "progressText"
-            ) { targetText ->
-                Text(
-                    text = targetText,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            Text(
+                text = progressText,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
         LinearProgressIndicator(
             progress = { progress },
