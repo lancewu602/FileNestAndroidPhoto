@@ -61,6 +61,7 @@ class RetrofitClient @Inject constructor(
 
     fun setServerUrl(serverUrl: String) {
         retrofit = createRetrofit(serverUrl)
+        apiService = null
         apiService = getApiService()
     }
 

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.view.WindowInsets
 import android.view.WindowInsetsController
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -39,6 +40,7 @@ import com.filenest.photo.viewmodel.DetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@SuppressLint("WrongConstant")
 fun DetailScreen(
     navController: NavHostController,
     viewModel: DetailViewModel = hiltViewModel()
@@ -49,7 +51,16 @@ fun DetailScreen(
     val context = LocalContext.current
     val activity = context as? Activity
 
-    @SuppressLint("WrongConstant")
+    BackHandler(enabled = !isSystemUiVisible) {
+        isSystemUiVisible = true
+        activity?.let {
+            val window = it.window
+            val controller = WindowCompat.getInsetsController(window, window.decorView)
+            controller.show(WindowInsets.Type.systemBars())
+        }
+        navController.popBackStack()
+    }
+
     fun toggleSystemUi() {
         isSystemUiVisible = !isSystemUiVisible
         activity?.let {
@@ -74,7 +85,17 @@ fun DetailScreen(
                 TopAppBar(
                     title = { Text("详情") },
                     navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
+                        IconButton(onClick = {
+                            if (!isSystemUiVisible) {
+                                isSystemUiVisible = true
+                                activity?.let {
+                                    val window = it.window
+                                    val controller = WindowCompat.getInsetsController(window, window.decorView)
+                                    controller.show(WindowInsets.Type.systemBars())
+                                }
+                            }
+                            navController.popBackStack()
+                        }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "返回"
@@ -109,7 +130,7 @@ fun DetailScreen(
 
                 uiState.mediaDetail != null -> {
                     val media = uiState.mediaDetail!!
-                    val imageUrl = "http://192.168.31.66:8916/api/preview/media/${media.previewPath}"
+                    val imageUrl = "http://192.168.31.174:8916/api/preview/media/${media.previewPath}"
 
                     AsyncImage(
                         model = imageUrl,

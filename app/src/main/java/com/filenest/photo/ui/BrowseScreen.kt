@@ -1,5 +1,7 @@
 package com.filenest.photo.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,8 +18,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
@@ -111,13 +117,38 @@ private fun MediaGridItem(
     media: MediaListItem,
     onClick: () -> Unit
 ) {
-    val thumbnailUrl = "http://192.168.31.66:8916/api/preview/media/${media.thumbnailPath}"
-    AsyncImage(
-        model = thumbnailUrl,
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
+    val thumbnailUrl = "http://192.168.31.174:8916/api/preview/media/${media.thumbnailPath}"
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable(onClick = onClick)
-    )
+    ) {
+        AsyncImage(
+            model = thumbnailUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        if (media.type == "VIDEO" && media.durationText.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(4.dp)
+                    .background(
+                        color = Color.Black.copy(alpha = 0.6f),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = media.durationText,
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            }
+        }
+    }
 }
