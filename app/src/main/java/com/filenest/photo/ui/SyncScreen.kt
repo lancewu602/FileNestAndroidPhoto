@@ -60,6 +60,14 @@ fun SyncScreen(navController: NavHostController) {
         }
     }
 
+    var wasSyncing by remember { mutableStateOf(false) }
+    LaunchedEffect(isSyncing) {
+        if (wasSyncing && !isSyncing) {
+            viewModel.loadSyncInfo()
+        }
+        wasSyncing = isSyncing
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
