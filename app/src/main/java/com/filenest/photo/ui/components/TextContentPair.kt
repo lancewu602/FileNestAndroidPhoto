@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -20,8 +21,6 @@ import androidx.compose.ui.unit.dp
 fun TextContentPair(
     title: String,
     content: String,
-    contentModifier: Modifier = Modifier,
-    ellipsizeMiddle: Boolean = false,
     animate: Boolean = false
 ) {
     Row(
@@ -31,7 +30,10 @@ fun TextContentPair(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(title, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium
+        )
         if (animate) {
             AnimatedContent(
                 targetState = content,
@@ -40,14 +42,15 @@ fun TextContentPair(
                         slideOutVertically { height -> -height }
                 },
                 label = "content",
-                modifier = Modifier
+                modifier = Modifier.weight(1f)
             ) { targetContent ->
                 Text(
                     text = targetContent,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
-                    overflow = if (ellipsizeMiddle) TextOverflow.MiddleEllipsis else TextOverflow.Ellipsis,
-                    modifier = contentModifier
+                    overflow = TextOverflow.MiddleEllipsis,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         } else {
@@ -55,8 +58,9 @@ fun TextContentPair(
                 text = content,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
-                overflow = if (ellipsizeMiddle) TextOverflow.MiddleEllipsis else TextOverflow.Ellipsis,
-                modifier = contentModifier
+                overflow = TextOverflow.MiddleEllipsis,
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(1f).fillMaxWidth()
             )
         }
     }
