@@ -111,7 +111,7 @@ private fun MediaGridItem(
     media: MediaListItem,
     onClick: () -> Unit
 ) {
-    val thumbnailUrl = "http://172.25.20.10:8916/api/preview/media/${media.thumbnailPath}"
+    val thumbnailUrl = "http://192.168.31.66:8916/api/preview/media/${media.thumbnailPath}"
     AsyncImage(
         model = thumbnailUrl,
         contentDescription = null,

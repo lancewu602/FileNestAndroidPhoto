@@ -3,6 +3,7 @@ package com.filenest.photo.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.view.WindowInsets
+import android.view.WindowInsetsController
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -54,6 +55,7 @@ fun DetailScreen(
         activity?.let {
             val window = it.window
             val controller = WindowCompat.getInsetsController(window, window.decorView)
+            controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             if (isSystemUiVisible) {
                 controller.show(WindowInsets.Type.systemBars())
             } else {
@@ -107,7 +109,7 @@ fun DetailScreen(
 
                 uiState.mediaDetail != null -> {
                     val media = uiState.mediaDetail!!
-                    val imageUrl = "http://172.25.20.10:8916/api/preview/media/${media.previewPath}"
+                    val imageUrl = "http://192.168.31.66:8916/api/preview/media/${media.previewPath}"
 
                     AsyncImage(
                         model = imageUrl,
