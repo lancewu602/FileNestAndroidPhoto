@@ -21,7 +21,8 @@ fun TextContentPair(
     title: String,
     content: String,
     contentModifier: Modifier = Modifier,
-    ellipsizeMiddle: Boolean = false
+    ellipsizeMiddle: Boolean = false,
+    animate: Boolean = false
 ) {
     Row(
         modifier = Modifier
@@ -31,17 +32,27 @@ fun TextContentPair(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(title, style = MaterialTheme.typography.bodyMedium)
-        AnimatedContent(
-            targetState = content,
-            transitionSpec = {
-                slideInVertically { height -> height } togetherWith
-                    slideOutVertically { height -> -height }
-            },
-            label = "content",
-            modifier = Modifier
-        ) { targetContent ->
+        if (animate) {
+            AnimatedContent(
+                targetState = content,
+                transitionSpec = {
+                    slideInVertically { height -> height } togetherWith
+                        slideOutVertically { height -> -height }
+                },
+                label = "content",
+                modifier = Modifier
+            ) { targetContent ->
+                Text(
+                    text = targetContent,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = if (ellipsizeMiddle) TextOverflow.MiddleEllipsis else TextOverflow.Ellipsis,
+                    modifier = contentModifier
+                )
+            }
+        } else {
             Text(
-                text = targetContent,
+                text = content,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = if (ellipsizeMiddle) TextOverflow.MiddleEllipsis else TextOverflow.Ellipsis,
