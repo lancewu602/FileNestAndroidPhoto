@@ -104,6 +104,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                 if (isRetOk(ret)) {
                     Log.i(TAG, "Direct upload success: ${item.name}")
                     SyncStateManager.setSyncProgressFile(1F)
+                    SyncStateManager.setSyncProgressStep("上传完成")
                     UploadResult.Success
                 } else {
                     Log.e(TAG, "Direct upload failed: ${ret.message ?: "未知异常"}")
@@ -212,6 +213,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                                 "SUCCESS" -> {
                                     Log.i(TAG, "Chunked upload completed: ${item.name}")
                                     SyncStateManager.setSyncProgressFile(1F)
+                                    SyncStateManager.setSyncProgressStep("上传完成")
                                     return@withContext UploadResult.Success
                                 }
 
