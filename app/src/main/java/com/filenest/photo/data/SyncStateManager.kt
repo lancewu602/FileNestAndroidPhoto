@@ -5,9 +5,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+enum class SyncResult {
+    NOT_STARTED,
+    IN_PROGRESS,
+    SUCCESS,
+    FAILURE
+}
+
 object SyncStateManager {
-    private val _isSyncing = MutableStateFlow(false)
-    val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
+    private val _syncResult = MutableStateFlow(SyncResult.NOT_STARTED)
+    val syncResult: StateFlow<SyncResult> = _syncResult.asStateFlow()
 
     private val _syncProgressInfo = MutableStateFlow(SyncProgressInfo())
     val syncProgressInfo: StateFlow<SyncProgressInfo> = _syncProgressInfo.asStateFlow()
@@ -19,7 +26,11 @@ object SyncStateManager {
     val syncProgressFile: StateFlow<Float> = _syncProgressFile.asStateFlow()
 
     fun setSyncing(syncing: Boolean) {
-        _isSyncing.value = syncing
+        _syncResult.value = if (syncing) SyncResult.IN_PROGRESS else SyncResult.NOT_STARTED
+    }
+
+    fun setSyncResult(result: SyncResult) {
+        _syncResult.value = result
     }
 
     fun setSyncProgressInfo(progress: Int, total: Int, fileName: String) {

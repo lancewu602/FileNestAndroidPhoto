@@ -6,9 +6,10 @@ import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.filenest.photo.data.AppPrefKeys
+import com.filenest.photo.data.SyncResult
+import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.data.api.RetrofitClient
 import com.filenest.photo.data.api.isRetOk
-import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.service.MediaSyncService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -46,7 +47,7 @@ class SyncViewModel @Inject constructor(
     private val _pendingSyncCount = MutableStateFlow(0)
     val pendingSyncCount: StateFlow<Int> = _pendingSyncCount.asStateFlow()
 
-    val isSyncing: StateFlow<Boolean> = SyncStateManager.isSyncing
+    val syncResult: StateFlow<SyncResult> = SyncStateManager.syncResult
     val syncProgressInfo: StateFlow<SyncProgressInfo> = SyncStateManager.syncProgressInfo
     val syncProgressFile: StateFlow<Float> = SyncStateManager.syncProgressFile
     val syncProgressStep: StateFlow<String> = SyncStateManager.syncProgressStep
@@ -124,7 +125,7 @@ class SyncViewModel @Inject constructor(
     }
 
     fun startSync() {
-        if (SyncStateManager.isSyncing.value) {
+        if (SyncStateManager.syncResult.value == SyncResult.IN_PROGRESS) {
             return
         }
         context.startForegroundService(Intent(context, MediaSyncService::class.java))

@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.filenest.photo.data.SyncResult
 import com.filenest.photo.ui.components.ProgressContentPair
 import com.filenest.photo.ui.components.TextContentPair
 import com.filenest.photo.viewmodel.SyncViewModel
@@ -45,7 +46,7 @@ fun SyncScreen(navController: NavHostController) {
     val lastSyncTime by viewModel.lastSyncTime.collectAsState()
     val serverMediaCount by viewModel.serverMediaCount.collectAsState()
     val pendingSyncCount by viewModel.pendingSyncCount.collectAsState()
-    val isSyncing by viewModel.isSyncing.collectAsState()
+    val syncResult by viewModel.syncResult.collectAsState()
     val syncProgressInfo by viewModel.syncProgressInfo.collectAsState()
     val syncProgressFile by viewModel.syncProgressFile.collectAsState()
     val syncProgressStep by viewModel.syncProgressStep.collectAsState()
@@ -61,11 +62,11 @@ fun SyncScreen(navController: NavHostController) {
     }
 
     var wasSyncing by remember { mutableStateOf(false) }
-    LaunchedEffect(isSyncing) {
-        if (wasSyncing && !isSyncing) {
+    LaunchedEffect(syncResult) {
+        if (wasSyncing && syncResult != SyncResult.IN_PROGRESS) {
             viewModel.loadSyncInfo()
         }
-        wasSyncing = isSyncing
+        wasSyncing = syncResult == SyncResult.IN_PROGRESS
     }
 
     Scaffold(
@@ -155,7 +156,7 @@ fun SyncScreen(navController: NavHostController) {
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = "同步信息",
+                        text = "最新同步信息",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
@@ -168,18 +169,24 @@ fun SyncScreen(navController: NavHostController) {
                     HorizontalDivider()
 
                     Text(
-                        text = "同步状态",
+                        text = "本次同步状态",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
                     )
+                    val syncStatus = when (syncResult) {
+                        SyncResult.IN_PROGRESS -> "同步中"
+                        SyncResult.SUCCESS -> "同步完成"
+                        SyncResult.FAILURE -> "同步失败"
+                        else -> "未开始"
+                    }
                     TextContentPair(
                         title = "状态",
-                        content = if (isSyncing) "同步中" else "未开始"
+                        content = syncStatus
                     )
                     HorizontalDivider()
                     TextContentPair(
-                        title = "同步进度",
+                        title = "进度",
                         content = "${syncProgressInfo.total}/${syncProgressInfo.completed}"
                     )
                     HorizontalDivider()
@@ -206,9 +213,9 @@ fun SyncScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                enabled = !isSyncing && pendingSyncCount > 0
+                enabled = syncResult != SyncResult.IN_PROGRESS && pendingSyncCount > 0
             ) {
-                Text(if (isSyncing) "同步中..." else if (pendingSyncCount > 0) "开始同步" else "无需同步")
+                Text("开始同步")
             }
         }
     }

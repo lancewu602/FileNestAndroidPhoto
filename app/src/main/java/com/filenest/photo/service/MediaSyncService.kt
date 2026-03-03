@@ -12,6 +12,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.filenest.photo.R
 import com.filenest.photo.data.AppPrefKeys
+import com.filenest.photo.data.SyncResult
 import com.filenest.photo.data.SyncStateManager
 import com.filenest.photo.data.usecase.MediaSyncFetchUseCase
 import com.filenest.photo.data.usecase.MediaSyncUploadUseCase
@@ -84,13 +85,16 @@ class MediaSyncService : Service() {
                 if (!failed) {
                     Log.d(TAG, "同步完成")
                     updateNotification("同步完成")
+                    SyncStateManager.setSyncResult(SyncResult.SUCCESS)
+                } else {
+                    SyncStateManager.setSyncResult(SyncResult.FAILURE)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "同步失败", e)
                 updateNotification("同步失败: ${e.message}")
+                SyncStateManager.setSyncResult(SyncResult.FAILURE)
             } finally {
                 AppPrefKeys.setLatestSyncTime(applicationContext, System.currentTimeMillis())
-                SyncStateManager.setSyncing(false)
                 stopSelf()
             }
         }
