@@ -25,13 +25,6 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
-data class SyncProgressInfo(
-    val total: Int = 0,
-    val completed: Int = 0,
-    val fileName: String = "",
-    val step: String = "",
-)
-
 @HiltViewModel
 class SyncViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -47,10 +40,12 @@ class SyncViewModel @Inject constructor(
     private val _pendingSyncCount = MutableStateFlow(0)
     val pendingSyncCount: StateFlow<Int> = _pendingSyncCount.asStateFlow()
 
+    val syncTotal: StateFlow<Int> = SyncStateManager.syncTotal
+    val syncCompleted: StateFlow<Int> = SyncStateManager.syncCompleted
+    val syncFileName: StateFlow<String> = SyncStateManager.syncFileName
+    val syncStep: StateFlow<String> = SyncStateManager.syncStep
+    val syncFileProgress: StateFlow<Float> = SyncStateManager.syncFileProgress
     val syncResult: StateFlow<SyncResult> = SyncStateManager.syncResult
-    val syncProgressInfo: StateFlow<SyncProgressInfo> = SyncStateManager.syncProgressInfo
-    val syncProgressFile: StateFlow<Float> = SyncStateManager.syncProgressFile
-    val syncProgressStep: StateFlow<String> = SyncStateManager.syncProgressStep
 
     fun loadSyncInfo() {
         viewModelScope.launch {

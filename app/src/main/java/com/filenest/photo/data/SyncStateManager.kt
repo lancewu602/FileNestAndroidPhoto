@@ -1,6 +1,5 @@
 package com.filenest.photo.data
 
-import com.filenest.photo.viewmodel.SyncProgressInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,14 +15,20 @@ object SyncStateManager {
     private val _syncResult = MutableStateFlow(SyncResult.NOT_STARTED)
     val syncResult: StateFlow<SyncResult> = _syncResult.asStateFlow()
 
-    private val _syncProgressInfo = MutableStateFlow(SyncProgressInfo())
-    val syncProgressInfo: StateFlow<SyncProgressInfo> = _syncProgressInfo.asStateFlow()
+    private val _syncCompleted = MutableStateFlow(0)
+    val syncCompleted: StateFlow<Int> = _syncCompleted.asStateFlow()
 
-    private val _syncProgressStep = MutableStateFlow("")
-    val syncProgressStep: StateFlow<String> = _syncProgressStep.asStateFlow()
+    private val _syncTotal = MutableStateFlow(0)
+    val syncTotal: StateFlow<Int> = _syncTotal.asStateFlow()
 
-    private val _syncProgressFile = MutableStateFlow(0F)
-    val syncProgressFile: StateFlow<Float> = _syncProgressFile.asStateFlow()
+    private val _syncStep = MutableStateFlow("")
+    val syncStep: StateFlow<String> = _syncStep.asStateFlow()
+
+    private val _syncFileProgress = MutableStateFlow(0F)
+    val syncFileProgress: StateFlow<Float> = _syncFileProgress.asStateFlow()
+
+    private val _syncFileName = MutableStateFlow("")
+    val syncFileName: StateFlow<String> = _syncFileName.asStateFlow()
 
     fun setSyncing(syncing: Boolean) {
         _syncResult.value = if (syncing) SyncResult.IN_PROGRESS else SyncResult.NOT_STARTED
@@ -33,19 +38,23 @@ object SyncStateManager {
         _syncResult.value = result
     }
 
-    fun setSyncProgressInfo(progress: Int, total: Int, fileName: String) {
-        _syncProgressInfo.value = SyncProgressInfo(
-            total = progress,
-            completed = total,
-            fileName = fileName,
-        )
+    fun setSyncTotal(total: Int) {
+        _syncTotal.value = total
     }
 
-    fun setSyncProgressFile(progress: Float) {
-        _syncProgressFile.value = progress
+    fun setSyncCompleted(completed: Int) {
+        _syncCompleted.value = completed
     }
 
-    fun setSyncProgressStep(step: String) {
-        _syncProgressStep.value = step
+    fun setFileName(fileName: String) {
+        _syncFileName.value = fileName
+    }
+
+    fun setFileProgress(progress: Float) {
+        _syncFileProgress.value = progress
+    }
+
+    fun setStep(step: String) {
+        _syncStep.value = step
     }
 }

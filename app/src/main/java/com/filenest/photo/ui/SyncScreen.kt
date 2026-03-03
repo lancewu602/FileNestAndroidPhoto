@@ -47,9 +47,11 @@ fun SyncScreen(navController: NavHostController) {
     val serverMediaCount by viewModel.serverMediaCount.collectAsState()
     val pendingSyncCount by viewModel.pendingSyncCount.collectAsState()
     val syncResult by viewModel.syncResult.collectAsState()
-    val syncProgressInfo by viewModel.syncProgressInfo.collectAsState()
-    val syncProgressFile by viewModel.syncProgressFile.collectAsState()
-    val syncProgressStep by viewModel.syncProgressStep.collectAsState()
+    val syncProgressCompleted by viewModel.syncCompleted.collectAsState()
+    val syncProgressTotal by viewModel.syncTotal.collectAsState()
+    val syncProgressFile by viewModel.syncFileProgress.collectAsState()
+    val syncProgressStep by viewModel.syncStep.collectAsState()
+    val syncProgressFileName by viewModel.syncFileName.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
     var showResetSyncDialog by remember { mutableStateOf(false) }
     var showResetToLatestDialog by remember { mutableStateOf(false) }
@@ -187,12 +189,12 @@ fun SyncScreen(navController: NavHostController) {
                     HorizontalDivider()
                     TextContentPair(
                         title = "进度",
-                        content = "${syncProgressInfo.total}/${syncProgressInfo.completed}"
+                        content = "$syncProgressCompleted/$syncProgressTotal"
                     )
                     HorizontalDivider()
                     TextContentPair(
                         title = "文件名称",
-                        content = syncProgressInfo.fileName,
+                        content = syncProgressFileName,
                     )
                     HorizontalDivider()
                     ProgressContentPair(

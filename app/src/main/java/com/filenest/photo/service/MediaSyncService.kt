@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
@@ -18,7 +17,6 @@ import com.filenest.photo.data.usecase.MediaSyncFetchUseCase
 import com.filenest.photo.data.usecase.MediaSyncUploadUseCase
 import com.filenest.photo.data.usecase.UploadResult
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -64,6 +62,7 @@ class MediaSyncService : Service() {
                 val medias = mediaSyncFetchUseCase.fetchMedias()
                 val total = medias.size
                 Log.d(TAG, "开始同步: $total 个文件")
+                SyncStateManager.setSyncTotal(total)
 
                 var syncedCount = 0
                 var failed = false
@@ -79,7 +78,8 @@ class MediaSyncService : Service() {
                     syncedCount++
                     val progress = syncedCount * 100 / total
                     updateNotification("已上传 ($syncedCount/$total)", progress)
-                    SyncStateManager.setSyncProgressInfo(syncedCount, total, item.name)
+                    SyncStateManager.setSyncCompleted(syncedCount)
+                    SyncStateManager.setFileName(item.name)
                 }
 
                 if (!failed) {
