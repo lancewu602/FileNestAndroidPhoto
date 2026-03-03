@@ -21,6 +21,7 @@ class MainActivity : ComponentActivity() {
 
     private val permissionsToRequest = arrayOf(
         Manifest.permission.READ_MEDIA_IMAGES,
+        Manifest.permission.READ_MEDIA_VIDEO,
         Manifest.permission.POST_NOTIFICATIONS
     )
 
@@ -71,7 +72,7 @@ class MainActivity : ComponentActivity() {
                     AlertDialog(
                         onDismissRequest = { showPermissionDialog = false },
                         title = { Text("权限申请") },
-                        text = { Text("为了提供更好的服务，请授予以下权限：\n\n- 访问媒体资源：用于备份和同步您的照片\n- 通知权限：用于接收同步状态和重要提醒") },
+                        text = { Text("为了提供更好的服务，请授予以下权限：\n\n- 访问媒体资源（照片和视频）：用于备份和同步您的媒体文件\n- 通知权限：用于接收同步状态和重要提醒") },
                         confirmButton = {
                             TextButton(
                                 onClick = {

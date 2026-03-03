@@ -2,6 +2,7 @@ package com.filenest.photo.viewmodel
 
 import android.content.Context
 import android.provider.MediaStore
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.filenest.photo.data.AlbumData
@@ -36,50 +37,64 @@ class AlbumSyncViewModel @Inject constructor(
             val albums = try {
                 val albumMap = mutableMapOf<Long, Pair<String, Int>>()
 
-                fun queryMedia(storeUri: android.net.Uri, bucketIdCol: String, bucketNameCol: String) {
-                    val projection = arrayOf(bucketIdCol, bucketNameCol)
-                    context.contentResolver.query(
-                        storeUri,
-                        projection,
-                        null,
-                        null,
-                        null
-                    )?.use { cursor ->
-                        val bucketIdColumn = cursor.getColumnIndexOrThrow(bucketIdCol)
-                        val bucketNameColumn = cursor.getColumnIndexOrThrow(bucketNameCol)
-
-                        while (cursor.moveToNext()) {
-                            val bucketId = cursor.getLong(bucketIdColumn)
-                            val bucketName = cursor.getString(bucketNameColumn)
-                            val current = albumMap[bucketId]
-                            if (current != null) {
-                                albumMap[bucketId] = current.copy(second = current.second + 1)
-                            } else {
-                                albumMap[bucketId] = bucketName to 1
-                            }
-                        }
-                    }
-                }
-
-                queryMedia(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    MediaStore.Images.Media.BUCKET_ID,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME
-                )
                 queryMedia(
                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     MediaStore.Video.Media.BUCKET_ID,
-                    MediaStore.Video.Media.BUCKET_DISPLAY_NAME
+                    MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
+                    "VIDEO",
+                    albumMap
+                )
+                queryMedia(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    MediaStore.Images.Media.BUCKET_ID,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                    "IMAGE",
+                    albumMap
                 )
 
                 albumMap.map { (bucketId, bucketNameAndCount) ->
                     AlbumData(bucketId, bucketNameAndCount.first, bucketNameAndCount.second)
                 }.sortedBy { it.bucketName }
             } catch (e: Exception) {
+                Log.e("AlbumSync", "loadAlbums error", e)
                 emptyList()
             }
             _albums.value = albums
         }
+    }
+
+    private fun queryMedia(
+        storeUri: android.net.Uri,
+        bucketIdCol: String,
+        bucketNameCol: String,
+        mediaType: String,
+        albumMap: MutableMap<Long, Pair<String, Int>>
+    ) {
+        Log.d("AlbumSync", "[$mediaType] query start, uri: $storeUri")
+        val projection = arrayOf(bucketIdCol, bucketNameCol)
+        val cursor = context.contentResolver.query(
+            storeUri,
+            projection,
+            null,
+            null,
+            null
+        )
+        Log.d("AlbumSync", "[$mediaType] cursor: ${cursor?.count ?: "null"}")
+        cursor?.use {
+            val bucketIdColumn = cursor.getColumnIndexOrThrow(bucketIdCol)
+            val bucketNameColumn = cursor.getColumnIndexOrThrow(bucketNameCol)
+
+            while (cursor.moveToNext()) {
+                val bucketId = cursor.getLong(bucketIdColumn)
+                val bucketName = cursor.getString(bucketNameColumn)
+                val current = albumMap[bucketId]
+                if (current != null) {
+                    albumMap[bucketId] = current.copy(second = current.second + 1)
+                } else {
+                    albumMap[bucketId] = bucketName to 1
+                }
+            }
+        } ?: Log.w("AlbumSync", "[$mediaType] query returned null cursor")
     }
 
     fun toggleAlbum(bucketId: Long) {
