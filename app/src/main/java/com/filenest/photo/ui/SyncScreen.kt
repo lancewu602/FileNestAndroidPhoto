@@ -50,7 +50,7 @@ fun SyncScreen(navController: NavHostController) {
     val syncProgressCompleted by viewModel.syncCompleted.collectAsState()
     val syncProgressTotal by viewModel.syncTotal.collectAsState()
     val syncProgressFile by viewModel.syncFileProgress.collectAsState()
-    val syncProgressStep by viewModel.syncStep.collectAsState()
+    val syncProgressStep by viewModel.syncFileStep.collectAsState()
     val syncProgressFileName by viewModel.syncFileName.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
     var showResetSyncDialog by remember { mutableStateOf(false) }

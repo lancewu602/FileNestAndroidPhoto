@@ -43,7 +43,7 @@ class SyncViewModel @Inject constructor(
     val syncTotal: StateFlow<Int> = SyncStateManager.syncTotal
     val syncCompleted: StateFlow<Int> = SyncStateManager.syncCompleted
     val syncFileName: StateFlow<String> = SyncStateManager.syncFileName
-    val syncStep: StateFlow<String> = SyncStateManager.syncStep
+    val syncFileStep: StateFlow<String> = SyncStateManager.syncFileStep
     val syncFileProgress: StateFlow<Float> = SyncStateManager.syncFileProgress
     val syncResult: StateFlow<SyncResult> = SyncStateManager.syncResult
 

@@ -72,8 +72,6 @@ class MediaSyncUploadUseCase @Inject constructor(
     private suspend fun uploadMediaDirect(item: MediaSyncItem): UploadResult {
         return withContext(Dispatchers.IO) {
             try {
-                SyncStateManager.setStep("上传中")
-                SyncStateManager.setFileProgress(0F)
                 val uri = item.contentUri.toUri()
                 val inputStream = context.contentResolver.openInputStream(uri)
                     ?: return@withContext UploadResult.Failure("Cannot open input stream for URI")
@@ -104,7 +102,7 @@ class MediaSyncUploadUseCase @Inject constructor(
                 if (isRetOk(ret)) {
                     Log.i(TAG, "Direct upload success: ${item.name}")
                     SyncStateManager.setFileProgress(1F)
-                    SyncStateManager.setStep("上传完成")
+                    SyncStateManager.setFileStep("上传完成")
                     UploadResult.Success
                 } else {
                     Log.e(TAG, "Direct upload failed: ${ret.message ?: "未知异常"}")
@@ -120,9 +118,6 @@ class MediaSyncUploadUseCase @Inject constructor(
     private suspend fun uploadMediaChunked(item: MediaSyncItem): UploadResult {
         return withContext(Dispatchers.IO) {
             try {
-                SyncStateManager.setStep("上传中")
-                SyncStateManager.setFileProgress(0F)
-
                 val fileId = "${item.name}-${item.size}-${item.dateModified}"
                 val totalChunks = (item.size + CHUNK_SIZE - 1) / CHUNK_SIZE
 
@@ -196,7 +191,8 @@ class MediaSyncUploadUseCase @Inject constructor(
                 Log.i(TAG, "Notify merge success, start polling merge result")
 
                 Log.i(TAG, "Starting poll merge result: timeout=${WAIT_POLL_TIMEOUT}ms, interval=${POLL_INTERVAL}ms")
-                SyncStateManager.setStep("合并分片中")
+                SyncStateManager.setFileStep("合并分片中")
+                SyncStateManager.setFileProgress(0F)
                 val startTime = System.currentTimeMillis()
                 var failureCount = 0
                 var pollCount = 0
@@ -212,8 +208,8 @@ class MediaSyncUploadUseCase @Inject constructor(
                             when (result.status) {
                                 "SUCCESS" -> {
                                     Log.i(TAG, "Chunked upload completed: ${item.name}")
+                                    SyncStateManager.setFileStep("上传完成")
                                     SyncStateManager.setFileProgress(1F)
-                                    SyncStateManager.setStep("上传完成")
                                     return@withContext UploadResult.Success
                                 }
 

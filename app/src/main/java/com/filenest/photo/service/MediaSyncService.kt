@@ -68,6 +68,9 @@ class MediaSyncService : Service() {
                 var failed = false
 
                 for (item in medias) {
+                    SyncStateManager.setFileName(item.name)
+                    SyncStateManager.setFileStep("上传中")
+                    SyncStateManager.setFileProgress(0F)
                     val result = mediaSyncUploadUseCase.uploadMedia(item)
                     if (result is UploadResult.Failure) {
                         Log.w(TAG, "上传失败: ${result.message}, 已同步 $syncedCount 个文件")
@@ -79,7 +82,6 @@ class MediaSyncService : Service() {
                     val progress = syncedCount * 100 / total
                     updateNotification("已上传 ($syncedCount/$total)", progress)
                     SyncStateManager.setSyncCompleted(syncedCount)
-                    SyncStateManager.setFileName(item.name)
                 }
 
                 if (!failed) {
