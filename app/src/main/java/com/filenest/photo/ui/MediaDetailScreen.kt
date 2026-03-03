@@ -131,13 +131,21 @@ fun DetailScreen(
                 uiState.mediaDetail != null -> {
                     val media = uiState.mediaDetail!!
                     val imageUrl = "http://192.168.31.174:8916/api/preview/media/${media.previewPath}"
+                    val videoUrl = "http://192.168.31.174:8916/api/preview/media/${media.originalPath}"
 
-                    AsyncImage(
-                        model = imageUrl,
-                        contentDescription = media.name,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    if (media.type == "VIDEO") {
+                        VideoPlayer(
+                            videoUrl = videoUrl,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = media.name,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }

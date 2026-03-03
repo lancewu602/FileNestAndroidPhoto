@@ -139,4 +139,8 @@ dependencies {
     // Apache Commons
     implementation("commons-io:commons-io:2.20.0")
     implementation("org.apache.commons:commons-lang3:3.20.0")
+
+    // Media3 ExoPlayer
+    implementation("androidx.media3:media3-exoplayer:1.6.1")
+    implementation("androidx.media3:media3-ui:1.6.1")
 }
