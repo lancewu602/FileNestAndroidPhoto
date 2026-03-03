@@ -163,9 +163,9 @@ fun SyncScreen(navController: NavHostController) {
                     )
                     TextContentPair(title = "上次同步时间", content = lastSyncTime)
                     HorizontalDivider()
-                    TextContentPair(title = "服务端媒体数量", content = serverMediaCount.toString())
+                    TextContentPair(title = "服务端数量", content = serverMediaCount.toString())
                     HorizontalDivider()
-                    TextContentPair(title = "待同步文件数量", content = pendingSyncCount.toString())
+                    TextContentPair(title = "待同步数量", content = pendingSyncCount.toString())
                     HorizontalDivider()
 
                     Text(
