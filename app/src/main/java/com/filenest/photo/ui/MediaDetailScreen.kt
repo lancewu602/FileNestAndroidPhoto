@@ -66,7 +66,9 @@ fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val videoPlayerState by viewModel.videoPlayerState.collectAsState()
+    val isPlaying by viewModel.isPlaying.collectAsState()
+    val currentPosition by viewModel.currentPosition.collectAsState()
+    val duration by viewModel.duration.collectAsState()
     var isSystemUiVisible by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
@@ -221,14 +223,14 @@ fun DetailScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = TimeFormatter.formatTimeToHMS(videoPlayerState.currentPosition),
+                                            text = TimeFormatter.formatTimeToHMS(currentPosition),
                                             color = Color.White,
                                             fontSize = 12.sp
                                         )
 
                                         IconButton(
                                             onClick = {
-                                                if (videoPlayerState.isPlaying) {
+                                                if (isPlaying) {
                                                     viewModel.pause()
                                                 } else {
                                                     viewModel.play()
@@ -238,22 +240,22 @@ fun DetailScreen(
                                                 .size(40.dp)
                                         ) {
                                             Icon(
-                                                imageVector = if (videoPlayerState.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                                                contentDescription = if (videoPlayerState.isPlaying) "暂停" else "播放",
+                                                imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                                                contentDescription = null,
                                                 tint = Color.White,
                                                 modifier = Modifier.size(32.dp)
                                             )
                                         }
 
                                         Text(
-                                            text = TimeFormatter.formatTimeToHMS(videoPlayerState.duration),
+                                            text = TimeFormatter.formatTimeToHMS(duration),
                                             color = Color.White,
                                             fontSize = 12.sp
                                         )
                                     }
 
                                     LinearProgressIndicator(
-                                        progress = { if (videoPlayerState.duration > 0) videoPlayerState.currentPosition.toFloat() / videoPlayerState.duration else 0f },
+                                        progress = { if (duration > 0) currentPosition.toFloat() / duration else 0f },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(top = 4.dp),

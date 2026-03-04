@@ -20,12 +20,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class VideoPlayerState(
-    val isPlaying: Boolean = false,
-    val currentPosition: Long = 0L,
-    val duration: Long = 0L
-)
-
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -38,8 +32,14 @@ class DetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
-    private val _videoPlayerState = MutableStateFlow(VideoPlayerState())
-    val videoPlayerState: StateFlow<VideoPlayerState> = _videoPlayerState.asStateFlow()
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+
+    private val _currentPosition = MutableStateFlow(0L)
+    val currentPosition: StateFlow<Long> = _currentPosition.asStateFlow()
+
+    private val _duration = MutableStateFlow(0L)
+    val duration: StateFlow<Long> = _duration.asStateFlow()
 
     val exoPlayer: ExoPlayer by lazy {
         ExoPlayer.Builder(context).build().apply {
@@ -70,11 +70,9 @@ class DetailViewModel @Inject constructor(
     private fun startVideoStateObserver() {
         viewModelScope.launch {
             while (isActive) {
-                _videoPlayerState.value = VideoPlayerState(
-                    isPlaying = exoPlayer.isPlaying,
-                    currentPosition = exoPlayer.currentPosition,
-                    duration = exoPlayer.duration.coerceAtLeast(0)
-                )
+                _isPlaying.value = exoPlayer.isPlaying
+                _currentPosition.value = exoPlayer.currentPosition
+                _duration.value = exoPlayer.duration.coerceAtLeast(0)
                 delay(500)
             }
         }
