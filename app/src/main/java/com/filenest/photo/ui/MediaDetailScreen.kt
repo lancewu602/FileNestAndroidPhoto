@@ -268,73 +268,32 @@ fun DetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(Color.Black)
-                                    .padding(vertical = 16.dp)
+                                    .padding(vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clickable { },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.FavoriteBorder,
-                                            contentDescription = "收藏",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(28.dp)
-                                        )
-                                        Text(
-                                            text = "收藏",
-                                            color = Color.White,
-                                            modifier = Modifier.padding(top = 4.dp)
-                                        )
-                                    }
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.FavoriteBorder,
+                                        contentDescription = "收藏",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(28.dp)
+                                    )
                                 }
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clickable { },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.PhotoLibrary,
-                                            contentDescription = "添加到相册",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(28.dp)
-                                        )
-                                        Text(
-                                            text = "添加到相册",
-                                            color = Color.White,
-                                            modifier = Modifier.padding(top = 4.dp)
-                                        )
-                                    }
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.PhotoLibrary,
+                                        contentDescription = "添加到相册",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(28.dp)
+                                    )
                                 }
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clickable { },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Delete,
-                                            contentDescription = "删除",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(28.dp)
-                                        )
-                                        Text(
-                                            text = "删除",
-                                            color = Color.White,
-                                            modifier = Modifier.padding(top = 4.dp)
-                                        )
-                                    }
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "删除",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(28.dp)
+                                    )
                                 }
                             }
                         }
