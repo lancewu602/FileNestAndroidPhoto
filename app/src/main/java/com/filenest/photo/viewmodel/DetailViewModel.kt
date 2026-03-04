@@ -50,44 +50,18 @@ class DetailViewModel @Inject constructor(
 
     private var currentVideoUrl: String? = null
 
-    fun setVideoUrl(url: String) {
-        if (currentVideoUrl != url) {
-            currentVideoUrl = url
-            val mediaItem = MediaItem.fromUri(url)
-            exoPlayer.setMediaItem(mediaItem)
-            exoPlayer.prepare()
-        }
-    }
+    init {
+        loadMediaDetail()
 
-    fun play() {
-        _isPlaying.value = true
-        exoPlayer.play()
-    }
-
-    fun pause() {
-        _isPlaying.value = false
-        exoPlayer.pause()
-    }
-
-    private fun startVideoStateObserver() {
         viewModelScope.launch {
             while (isActive) {
-                _isPlaying.value = exoPlayer.isPlaying
-                _currentPosition.value = exoPlayer.currentPosition
-                _duration.value = exoPlayer.duration.coerceAtLeast(0)
+                if (exoPlayer.isPlaying) {
+                    _currentPosition.value = exoPlayer.currentPosition
+                    _duration.value = exoPlayer.duration.coerceAtLeast(0)
+                }
                 delay(500)
             }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        exoPlayer.release()
-    }
-
-    init {
-        loadMediaDetail()
-        startVideoStateObserver()
     }
 
     private fun loadMediaDetail() {
@@ -113,5 +87,29 @@ class DetailViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun setVideoUrl(url: String) {
+        if (currentVideoUrl != url) {
+            currentVideoUrl = url
+            val mediaItem = MediaItem.fromUri(url)
+            exoPlayer.setMediaItem(mediaItem)
+            exoPlayer.prepare()
+        }
+    }
+
+    fun play() {
+        _isPlaying.value = true
+        exoPlayer.play()
+    }
+
+    fun pause() {
+        _isPlaying.value = false
+        exoPlayer.pause()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        exoPlayer.release()
     }
 }
