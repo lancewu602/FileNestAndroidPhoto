@@ -12,6 +12,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,15 +20,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -45,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -59,6 +65,7 @@ fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val videoPlayerState by viewModel.videoPlayerState.collectAsState()
     var isSystemUiVisible by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
@@ -181,6 +188,67 @@ fun DetailScreen(
                             onVideoUrlSet = { viewModel.setVideoUrl(it) },
                             modifier = Modifier.fillMaxSize()
                         )
+
+                        AnimatedVisibility(
+                            visible = isSystemUiVisible,
+                            enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(300)),
+                            exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(300)),
+                            modifier = Modifier.align(Alignment.BottomCenter)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color.Black.copy(alpha = 0.8f))
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = formatTime(videoPlayerState.currentPosition),
+                                        color = Color.White,
+                                        fontSize = 12.sp
+                                    )
+
+                                    IconButton(
+                                        onClick = {
+                                            if (videoPlayerState.isPlaying) {
+                                                viewModel.pause()
+                                            } else {
+                                                viewModel.play()
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .background(Color.White.copy(alpha = 0.3f), CircleShape)
+                                    ) {
+                                        Icon(
+                                            imageVector = if (videoPlayerState.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                                            contentDescription = if (videoPlayerState.isPlaying) "暂停" else "播放",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+
+                                    Text(
+                                        text = formatTime(videoPlayerState.duration),
+                                        color = Color.White,
+                                        fontSize = 12.sp
+                                    )
+                                }
+
+                                LinearProgressIndicator(
+                                    progress = { if (videoPlayerState.duration > 0) videoPlayerState.currentPosition.toFloat() / videoPlayerState.duration else 0f },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 4.dp),
+                                    color = Color.White,
+                                    trackColor = Color.White.copy(alpha = 0.3f)
+                                )
+                            }
+                        }
                     } else {
                         AsyncImage(
                             model = imageUrl,
@@ -274,4 +342,12 @@ fun DetailScreen(
             }
         }
     }
+}
+
+private fun formatTime(timeMs: Long): String {
+    if (timeMs <= 0) return "00:00"
+    val totalSeconds = timeMs / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return String.format("%02d:%02d", minutes, seconds)
 }

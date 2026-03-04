@@ -12,11 +12,19 @@ import com.filenest.photo.data.api.isRetOk
 import com.filenest.photo.data.uistate.DetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+data class VideoPlayerState(
+    val isPlaying: Boolean = false,
+    val currentPosition: Long = 0L,
+    val duration: Long = 0L
+)
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
@@ -29,6 +37,9 @@ class DetailViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
+
+    private val _videoPlayerState = MutableStateFlow(VideoPlayerState())
+    val videoPlayerState: StateFlow<VideoPlayerState> = _videoPlayerState.asStateFlow()
 
     val exoPlayer: ExoPlayer by lazy {
         ExoPlayer.Builder(context).build().apply {
@@ -56,6 +67,19 @@ class DetailViewModel @Inject constructor(
         exoPlayer.pause()
     }
 
+    private fun startVideoStateObserver() {
+        viewModelScope.launch {
+            while (isActive) {
+                _videoPlayerState.value = VideoPlayerState(
+                    isPlaying = exoPlayer.isPlaying,
+                    currentPosition = exoPlayer.currentPosition,
+                    duration = exoPlayer.duration.coerceAtLeast(0)
+                )
+                delay(500)
+            }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         exoPlayer.release()
@@ -63,6 +87,7 @@ class DetailViewModel @Inject constructor(
 
     init {
         loadMediaDetail()
+        startVideoStateObserver()
     }
 
     private fun loadMediaDetail() {
