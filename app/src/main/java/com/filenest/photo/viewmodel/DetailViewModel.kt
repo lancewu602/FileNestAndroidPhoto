@@ -23,7 +23,8 @@ import javax.inject.Inject
 data class VideoPlayerState(
     val isPlaying: Boolean = false,
     val currentPosition: Long = 0L,
-    val duration: Long = 0L
+    val duration: Long = 0L,
+    val isDragging: Boolean = false
 )
 
 @HiltViewModel
@@ -67,14 +68,25 @@ class DetailViewModel @Inject constructor(
         exoPlayer.pause()
     }
 
+    fun seekTo(position: Long) {
+        exoPlayer.seekTo(position)
+    }
+
+    fun setDragging(dragging: Boolean) {
+        _videoPlayerState.value = _videoPlayerState.value.copy(isDragging = dragging)
+    }
+
     private fun startVideoStateObserver() {
         viewModelScope.launch {
             while (isActive) {
-                _videoPlayerState.value = VideoPlayerState(
-                    isPlaying = exoPlayer.isPlaying,
-                    currentPosition = exoPlayer.currentPosition,
-                    duration = exoPlayer.duration.coerceAtLeast(0)
-                )
+                if (!_videoPlayerState.value.isDragging) {
+                    _videoPlayerState.value = VideoPlayerState(
+                        isPlaying = exoPlayer.isPlaying,
+                        currentPosition = exoPlayer.currentPosition,
+                        duration = exoPlayer.duration.coerceAtLeast(0),
+                        isDragging = false
+                    )
+                }
                 delay(500)
             }
         }
