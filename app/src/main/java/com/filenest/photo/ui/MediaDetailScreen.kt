@@ -186,6 +186,7 @@ fun DetailScreen(
                             exoPlayer = viewModel.exoPlayer,
                             videoUrl = videoUrl,
                             onVideoUrlSet = { viewModel.setVideoUrl(it) },
+                            onClick = { toggleSystemUi() },
                             modifier = Modifier.fillMaxSize()
                         )
 
