@@ -236,13 +236,12 @@ fun DetailScreen(
                                             },
                                             modifier = Modifier
                                                 .size(40.dp)
-                                                .background(Color.White.copy(alpha = 0.3f), CircleShape)
                                         ) {
                                             Icon(
                                                 imageVector = if (videoPlayerState.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                                                 contentDescription = if (videoPlayerState.isPlaying) "暂停" else "播放",
                                                 tint = Color.White,
-                                                modifier = Modifier.size(24.dp)
+                                                modifier = Modifier.size(32.dp)
                                             )
                                         }
 
