@@ -32,9 +32,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -180,8 +179,8 @@ fun DetailScreen(
 
                 uiState.mediaDetail != null -> {
                     val media = uiState.mediaDetail!!
-                    val imageUrl = "http://172.25.20.14:8916/api/static/media/${media.previewPath}"
-                    val videoUrl = "http://172.25.20.14:8916/api/static/media/${media.originalPath}"
+                    val imageUrl = "http://192.168.31.55:8916/api/static/media/${media.previewPath}"
+                    val videoUrl = "http://192.168.31.55:8916/api/static/media/${media.originalPath}"
 
                     if (media.type == "VIDEO") {
                         VideoPlayer(
@@ -254,30 +253,13 @@ fun DetailScreen(
                                         )
                                     }
 
-                                    var wasDragging by remember { mutableStateOf(false) }
-
-                                    Slider(
-                                        value = if (videoPlayerState.duration > 0) videoPlayerState.currentPosition.toFloat() / videoPlayerState.duration else 0f,
-                                        onValueChange = { progress ->
-                                            if (!wasDragging) {
-                                                wasDragging = true
-                                                viewModel.setDragging(true)
-                                            }
-                                            viewModel.seekTo((progress * videoPlayerState.duration).toLong())
-                                        },
-                                        onValueChangeFinished = {
-                                            wasDragging = false
-                                            viewModel.setDragging(false)
-                                        },
+                                    LinearProgressIndicator(
+                                        progress = { if (videoPlayerState.duration > 0) videoPlayerState.currentPosition.toFloat() / videoPlayerState.duration else 0f },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(top = 4.dp),
-                                        colors = SliderDefaults.colors(
-                                            thumbColor = Color.White,
-                                            activeTrackColor = Color.White,
-                                            inactiveTrackColor = Color.White.copy(alpha = 0.3f)
-                                        ),
-                                        interactionSource = remember { MutableInteractionSource() }
+                                        color = Color.White,
+                                        trackColor = Color.White.copy(alpha = 0.3f)
                                     )
                                 }
                             }
