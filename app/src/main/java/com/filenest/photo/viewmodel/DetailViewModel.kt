@@ -60,10 +60,12 @@ class DetailViewModel @Inject constructor(
     }
 
     fun play() {
+        _isPlaying.value = true
         exoPlayer.play()
     }
 
     fun pause() {
+        _isPlaying.value = false
         exoPlayer.pause()
     }
 
