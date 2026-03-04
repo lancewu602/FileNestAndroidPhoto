@@ -167,7 +167,9 @@ fun DetailScreen(
 
                     if (media.type == "VIDEO") {
                         VideoPlayer(
+                            exoPlayer = viewModel.exoPlayer,
                             videoUrl = videoUrl,
+                            onVideoUrlSet = { viewModel.setVideoUrl(it) },
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {

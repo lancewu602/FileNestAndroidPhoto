@@ -1,12 +1,17 @@
 package com.filenest.photo.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import com.filenest.photo.data.api.RetrofitClient
 import com.filenest.photo.data.api.isRetOk
 import com.filenest.photo.data.uistate.DetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
+    @param:ApplicationContext private val context: Context,
     private val retrofitClient: RetrofitClient,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -23,6 +29,37 @@ class DetailViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
+
+    val exoPlayer: ExoPlayer by lazy {
+        ExoPlayer.Builder(context).build().apply {
+            repeatMode = Player.REPEAT_MODE_ONE
+            playWhenReady = true
+        }
+    }
+
+    private var currentVideoUrl: String? = null
+
+    fun setVideoUrl(url: String) {
+        if (currentVideoUrl != url) {
+            currentVideoUrl = url
+            val mediaItem = MediaItem.fromUri(url)
+            exoPlayer.setMediaItem(mediaItem)
+            exoPlayer.prepare()
+        }
+    }
+
+    fun play() {
+        exoPlayer.play()
+    }
+
+    fun pause() {
+        exoPlayer.pause()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        exoPlayer.release()
+    }
 
     init {
         loadMediaDetail()
