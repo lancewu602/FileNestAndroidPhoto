@@ -38,20 +38,12 @@ class MainApplication : Application(), SingletonImageLoader.Factory {
             // 缓存策略优化
             .networkCachePolicy(CachePolicy.ENABLED)
             .memoryCachePolicy(CachePolicy.ENABLED)
-            .diskCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(CachePolicy.DISABLED)
             // 内存缓存优化
             .memoryCache {
                 MemoryCache.Builder()
                     .maxSizeBytes(200 * 1024 * 1024)
                     .maxSizePercent(context, 0.25)
-                    .build()
-            }
-            // 磁盘缓存优化
-            .diskCache {
-                DiskCache.Builder()
-                    .directory(context.cacheDir.resolve("media_cache_002"))
-                    .maxSizeBytes(200 * 1024 * 1024)
-                    .maxSizePercent(0.02)
                     .build()
             }
             .allowConversionToBitmap(false)
