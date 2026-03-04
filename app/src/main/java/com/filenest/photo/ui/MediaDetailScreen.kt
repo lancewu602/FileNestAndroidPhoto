@@ -55,6 +55,7 @@ import androidx.core.view.WindowCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.filenest.photo.util.TimeFormatter
 import com.filenest.photo.viewmodel.DetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -220,7 +221,7 @@ fun DetailScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = formatTime(videoPlayerState.currentPosition),
+                                            text = TimeFormatter.formatTimeToHMS(videoPlayerState.currentPosition),
                                             color = Color.White,
                                             fontSize = 12.sp
                                         )
@@ -246,7 +247,7 @@ fun DetailScreen(
                                         }
 
                                         Text(
-                                            text = formatTime(videoPlayerState.duration),
+                                            text = TimeFormatter.formatTimeToHMS(videoPlayerState.duration),
                                             color = Color.White,
                                             fontSize = 12.sp
                                         )
@@ -342,12 +343,4 @@ fun DetailScreen(
             }
         }
     }
-}
-
-private fun formatTime(timeMs: Long): String {
-    if (timeMs <= 0) return "00:00"
-    val totalSeconds = timeMs / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return String.format("%02d:%02d", minutes, seconds)
 }
