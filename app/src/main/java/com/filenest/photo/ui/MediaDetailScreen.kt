@@ -189,67 +189,6 @@ fun DetailScreen(
                             onClick = { toggleSystemUi() },
                             modifier = Modifier.fillMaxSize()
                         )
-
-                        AnimatedVisibility(
-                            visible = isSystemUiVisible,
-                            enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(300)),
-                            exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(300)),
-                            modifier = Modifier.align(Alignment.BottomCenter)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(Color.Black.copy(alpha = 0.8f))
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = formatTime(videoPlayerState.currentPosition),
-                                        color = Color.White,
-                                        fontSize = 12.sp
-                                    )
-
-                                    IconButton(
-                                        onClick = {
-                                            if (videoPlayerState.isPlaying) {
-                                                viewModel.pause()
-                                            } else {
-                                                viewModel.play()
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .background(Color.White.copy(alpha = 0.3f), CircleShape)
-                                    ) {
-                                        Icon(
-                                            imageVector = if (videoPlayerState.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                                            contentDescription = if (videoPlayerState.isPlaying) "暂停" else "播放",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                    }
-
-                                    Text(
-                                        text = formatTime(videoPlayerState.duration),
-                                        color = Color.White,
-                                        fontSize = 12.sp
-                                    )
-                                }
-
-                                LinearProgressIndicator(
-                                    progress = { if (videoPlayerState.duration > 0) videoPlayerState.currentPosition.toFloat() / videoPlayerState.duration else 0f },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 4.dp),
-                                    color = Color.White,
-                                    trackColor = Color.White.copy(alpha = 0.3f)
-                                )
-                            }
-                        }
                     } else {
                         AsyncImage(
                             model = imageUrl,
@@ -265,76 +204,136 @@ fun DetailScreen(
                         exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(300)),
                         modifier = Modifier.align(Alignment.BottomCenter)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.Black)
-                                .padding(vertical = 16.dp)
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable { },
-                                contentAlignment = Alignment.Center
-                            ) {
+                            if (media.type == "VIDEO") {
                                 Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Color.Black.copy(alpha = 0.8f))
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.FavoriteBorder,
-                                        contentDescription = "收藏",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                    Text(
-                                        text = "收藏",
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = formatTime(videoPlayerState.currentPosition),
+                                            color = Color.White,
+                                            fontSize = 12.sp
+                                        )
+
+                                        IconButton(
+                                            onClick = {
+                                                if (videoPlayerState.isPlaying) {
+                                                    viewModel.pause()
+                                                } else {
+                                                    viewModel.play()
+                                                }
+                                            },
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .background(Color.White.copy(alpha = 0.3f), CircleShape)
+                                        ) {
+                                            Icon(
+                                                imageVector = if (videoPlayerState.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                                                contentDescription = if (videoPlayerState.isPlaying) "暂停" else "播放",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                        }
+
+                                        Text(
+                                            text = formatTime(videoPlayerState.duration),
+                                            color = Color.White,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+
+                                    LinearProgressIndicator(
+                                        progress = { if (videoPlayerState.duration > 0) videoPlayerState.currentPosition.toFloat() / videoPlayerState.duration else 0f },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 4.dp),
                                         color = Color.White,
-                                        modifier = Modifier.padding(top = 4.dp)
+                                        trackColor = Color.White.copy(alpha = 0.3f)
                                     )
                                 }
                             }
-                            Box(
+
+                            Row(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .clickable { },
-                                contentAlignment = Alignment.Center
+                                    .fillMaxWidth()
+                                    .background(Color.Black)
+                                    .padding(vertical = 16.dp)
                             ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable { },
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.PhotoLibrary,
-                                        contentDescription = "添加到相册",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                    Text(
-                                        text = "添加到相册",
-                                        color = Color.White,
-                                        modifier = Modifier.padding(top = 4.dp)
-                                    )
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.FavoriteBorder,
+                                            contentDescription = "收藏",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(28.dp)
+                                        )
+                                        Text(
+                                            text = "收藏",
+                                            color = Color.White,
+                                            modifier = Modifier.padding(top = 4.dp)
+                                        )
+                                    }
                                 }
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable { },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable { },
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Delete,
-                                        contentDescription = "删除",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                    Text(
-                                        text = "删除",
-                                        color = Color.White,
-                                        modifier = Modifier.padding(top = 4.dp)
-                                    )
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.PhotoLibrary,
+                                            contentDescription = "添加到相册",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(28.dp)
+                                        )
+                                        Text(
+                                            text = "添加到相册",
+                                            color = Color.White,
+                                            modifier = Modifier.padding(top = 4.dp)
+                                        )
+                                    }
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable { },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = "删除",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(28.dp)
+                                        )
+                                        Text(
+                                            text = "删除",
+                                            color = Color.White,
+                                            modifier = Modifier.padding(top = 4.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
