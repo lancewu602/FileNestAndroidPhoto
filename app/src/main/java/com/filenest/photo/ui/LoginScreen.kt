@@ -18,7 +18,7 @@ fun LoginScreen(navController: NavHostController) {
     val viewModel: MainViewModel = hiltViewModel()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    var serverUrl by remember { mutableStateOf("http://192.168.31.174:8080") }
+    var serverUrl by remember { mutableStateOf("http://172.25.20.14:8080") }
     var username by remember { mutableStateOf("admin") }
     var password by remember { mutableStateOf("admin") }
 

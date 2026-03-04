@@ -162,8 +162,8 @@ fun DetailScreen(
 
                 uiState.mediaDetail != null -> {
                     val media = uiState.mediaDetail!!
-                    val imageUrl = "http://192.168.31.174:8916/api/preview/media/${media.previewPath}"
-                    val videoUrl = "http://192.168.31.174:8916/api/preview/media/${media.originalPath}"
+                    val imageUrl = "http://172.25.20.14:8916/api/preview/media/${media.previewPath}"
+                    val videoUrl = "http://172.25.20.14:8916/api/preview/media/${media.originalPath}"
 
                     if (media.type == "VIDEO") {
                         VideoPlayer(
