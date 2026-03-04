@@ -200,7 +200,7 @@ fun DetailScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(Color.Black.copy(alpha = 0.6f))
-                                .padding(vertical = 16.dp)
+                                .padding(vertical = 6.dp)
                         ) {
                             Box(
                                 modifier = Modifier
@@ -215,12 +215,13 @@ fun DetailScreen(
                                         imageVector = Icons.Filled.FavoriteBorder,
                                         contentDescription = "收藏",
                                         tint = Color.White,
-                                        modifier = Modifier.size(28.dp)
+                                        modifier = Modifier.size(12.dp)
                                     )
                                     Text(
                                         text = "收藏",
                                         color = Color.White,
-                                        modifier = Modifier.padding(top = 4.dp)
+                                        fontSize = androidx.compose.ui.unit.TextUnit.Unspecified,
+                                        modifier = Modifier.padding(top = 2.dp)
                                     )
                                 }
                             }
@@ -237,12 +238,13 @@ fun DetailScreen(
                                         imageVector = Icons.Filled.PhotoLibrary,
                                         contentDescription = "添加到相册",
                                         tint = Color.White,
-                                        modifier = Modifier.size(28.dp)
+                                        modifier = Modifier.size(12.dp)
                                     )
                                     Text(
                                         text = "添加到相册",
                                         color = Color.White,
-                                        modifier = Modifier.padding(top = 4.dp)
+                                        fontSize = androidx.compose.ui.unit.TextUnit.Unspecified,
+                                        modifier = Modifier.padding(top = 2.dp)
                                     )
                                 }
                             }
@@ -259,12 +261,13 @@ fun DetailScreen(
                                         imageVector = Icons.Filled.Delete,
                                         contentDescription = "删除",
                                         tint = Color.White,
-                                        modifier = Modifier.size(28.dp)
+                                        modifier = Modifier.size(12.dp)
                                     )
                                     Text(
                                         text = "删除",
                                         color = Color.White,
-                                        modifier = Modifier.padding(top = 4.dp)
+                                        fontSize = androidx.compose.ui.unit.TextUnit.Unspecified,
+                                        modifier = Modifier.padding(top = 2.dp)
                                     )
                                 }
                             }
