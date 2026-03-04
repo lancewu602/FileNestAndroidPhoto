@@ -170,19 +170,7 @@ fun DetailScreen(
                             exoPlayer = viewModel.exoPlayer,
                             videoUrl = videoUrl,
                             onVideoUrlSet = { viewModel.setVideoUrl(it) },
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable(
-                                    indication = null, // ← 关键：禁用涟漪/按压指示器
-                                    interactionSource = remember { MutableInteractionSource() }, // ← 必须提供，即使不用
-                                    onClick = {
-                                        if (viewModel.exoPlayer.isPlaying) {
-                                            viewModel.pause()
-                                        } else {
-                                            viewModel.play()
-                                        }
-                                    }
-                                ),
+                            modifier = Modifier.fillMaxSize()
                         )
                     } else {
                         AsyncImage(
