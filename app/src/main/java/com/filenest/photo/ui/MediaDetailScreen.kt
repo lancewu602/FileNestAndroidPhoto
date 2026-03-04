@@ -14,7 +14,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
@@ -170,7 +170,19 @@ fun DetailScreen(
                             exoPlayer = viewModel.exoPlayer,
                             videoUrl = videoUrl,
                             onVideoUrlSet = { viewModel.setVideoUrl(it) },
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable(
+                                    indication = null, // ← 关键：禁用涟漪/按压指示器
+                                    interactionSource = remember { MutableInteractionSource() }, // ← 必须提供，即使不用
+                                    onClick = {
+                                        if (viewModel.exoPlayer.isPlaying) {
+                                            viewModel.pause()
+                                        } else {
+                                            viewModel.play()
+                                        }
+                                    }
+                                ),
                         )
                     } else {
                         AsyncImage(

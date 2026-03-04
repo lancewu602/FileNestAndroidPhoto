@@ -13,7 +13,7 @@ fun VideoPlayer(
     exoPlayer: ExoPlayer,
     videoUrl: String,
     onVideoUrlSet: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(videoUrl) {
         onVideoUrlSet(videoUrl)
@@ -27,7 +27,7 @@ fun VideoPlayer(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
-                useController = true
+                useController = false
             }
         },
         modifier = modifier
