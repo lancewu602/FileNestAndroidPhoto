@@ -192,26 +192,22 @@ fun DetailScreen(
                         )
 
                         AnimatedVisibility(
-                            visible = isSystemUiVisible,
+                            visible = isSystemUiVisible && !videoPlayerState.isPlaying,
                             enter = slideInVertically(initialOffsetY = { -it }, animationSpec = tween(300)),
                             exit = slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(300)),
                             modifier = Modifier.align(Alignment.Center)
                         ) {
                             IconButton(
                                 onClick = {
-                                    if (videoPlayerState.isPlaying) {
-                                        viewModel.pause()
-                                    } else {
-                                        viewModel.play()
-                                    }
+                                    viewModel.play()
                                 },
                                 modifier = Modifier
                                     .size(64.dp)
                                     .background(Color.Black.copy(alpha = 0.5f), CircleShape)
                             ) {
                                 Icon(
-                                    imageVector = if (videoPlayerState.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                                    contentDescription = if (videoPlayerState.isPlaying) "暂停" else "播放",
+                                    imageVector = Icons.Filled.PlayArrow,
+                                    contentDescription = "播放",
                                     tint = Color.White,
                                     modifier = Modifier.size(36.dp)
                                 )
