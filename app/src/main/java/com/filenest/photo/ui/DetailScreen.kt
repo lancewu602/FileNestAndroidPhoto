@@ -195,10 +195,9 @@ fun DetailScreen(
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
-                        AsyncImage(
-                            model = imageUrl,
+                        ZoomableImage(
+                            imageUrl = imageUrl,
                             contentDescription = media.name,
-                            contentScale = ContentScale.Fit,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
