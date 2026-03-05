@@ -14,39 +14,17 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class LoginViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val retrofitClient: RetrofitClient,
 ) : ViewModel() {
 
-    private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    private val _isCheckingAuth = MutableStateFlow(true)
-    val isCheckingAuth: StateFlow<Boolean> = _isCheckingAuth.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            AppPrefKeys.getServerToken(context).collect { token ->
-                _isLoggedIn.value = token.isNotBlank()
-                _isCheckingAuth.value = false
-                if (token.isNotBlank()) {
-                    val storedUrl = AppPrefKeys.getServerUrl(context).first()
-                    if (storedUrl.isNotBlank()) {
-                        retrofitClient.setServerUrl(storedUrl)
-                    }
-                }
-            }
-        }
-    }
 
     fun login(serverUrl: String, username: String, password: String, onComplete: () -> Unit) {
         viewModelScope.launch {
@@ -64,7 +42,6 @@ class MainViewModel @Inject constructor(
                         AppPrefKeys.setServerUrl(context, serverUrl)
                         AppPrefKeys.setUsername(context, username)
                         AppPrefKeys.setServerToken(context, token)
-                        _isLoggedIn.value = true
                         onComplete()
                     }
                 } else {
