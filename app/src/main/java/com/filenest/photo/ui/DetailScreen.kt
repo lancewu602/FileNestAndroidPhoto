@@ -38,7 +38,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,14 +46,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import coil3.compose.AsyncImage
 import com.filenest.photo.util.TimeFormatter
 import com.filenest.photo.viewmodel.DetailViewModel
 
@@ -72,59 +69,48 @@ fun DetailScreen(
     val isPlaying by viewModel.isPlaying.collectAsState()
     val currentPosition by viewModel.currentPosition.collectAsState()
     val duration by viewModel.duration.collectAsState()
-    var isSystemUiVisible by remember { mutableStateOf(true) }
+    var immersiveMode by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val activity = context as? Activity
+    val activity = context as Activity
 
-    DisposableEffect(Unit) {
-        activity?.let {
-            val window = it.window
-            WindowCompat.getInsetsController(window, window.decorView).apply {
-                isAppearanceLightStatusBars = false
-            }
-        }
-        onDispose {
-            activity?.let {
-                val window = it.window
-                WindowCompat.getInsetsController(window, window.decorView).apply {
-                    isAppearanceLightStatusBars = true
-                }
-            }
-        }
-    }
+    val view = LocalView.current
+    val windowInsetsController = view.windowInsetsController
 
-    BackHandler(enabled = !isSystemUiVisible) {
-        isSystemUiVisible = true
-        activity?.let {
-            val window = it.window
-            WindowCompat.getInsetsController(window, window.decorView).apply {
-                show(WindowInsets.Type.systemBars())
-                isAppearanceLightStatusBars = true
-            }
+    // 默认设置为亮色
+    windowInsetsController?.setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS)
+
+    fun goBack() {
+        windowInsetsController?.setSystemBarsAppearance(
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+        )
+        if (immersiveMode) {
+            windowInsetsController?.systemBarsBehavior = WindowInsetsController.BEHAVIOR_DEFAULT
+            windowInsetsController?.show(WindowInsets.Type.systemBars())
         }
         navController.popBackStack()
     }
 
-    fun toggleSystemUi() {
-        isSystemUiVisible = !isSystemUiVisible
-        activity?.let {
-            val window = it.window
-            val controller = WindowCompat.getInsetsController(window, window.decorView)
-            controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            if (isSystemUiVisible) {
-                controller.show(WindowInsets.Type.systemBars())
-                controller.isAppearanceLightStatusBars = false
-            } else {
-                controller.hide(WindowInsets.Type.systemBars())
-            }
+    BackHandler {
+        goBack()
+    }
+
+    fun toggleImmersiveMode() {
+        immersiveMode = !immersiveMode
+        if (immersiveMode) {
+            windowInsetsController?.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            windowInsetsController?.hide(WindowInsets.Type.systemBars())
+        } else {
+            windowInsetsController?.systemBarsBehavior = WindowInsetsController.BEHAVIOR_DEFAULT
+            windowInsetsController?.show(WindowInsets.Type.systemBars())
         }
     }
 
     Scaffold(
         topBar = {
             AnimatedVisibility(
-                visible = isSystemUiVisible,
+                visible = !immersiveMode,
                 enter = slideInVertically(initialOffsetY = { -it }, animationSpec = tween(300)),
                 exit = slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(300))
             ) {
@@ -141,17 +127,7 @@ fun DetailScreen(
                     ),
                     navigationIcon = {
                         IconButton(onClick = {
-                            if (!isSystemUiVisible) {
-                                isSystemUiVisible = true
-                                activity?.let {
-                                    val window = it.window
-                                    WindowCompat.getInsetsController(window, window.decorView).apply {
-                                        show(WindowInsets.Type.systemBars())
-                                        isAppearanceLightStatusBars = false
-                                    }
-                                }
-                            }
-                            navController.popBackStack()
+                            goBack()
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -170,7 +146,7 @@ fun DetailScreen(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
-                ) { toggleSystemUi() }
+                ) { toggleImmersiveMode() }
         ) {
             when {
                 uiState.isLoading -> {
@@ -196,7 +172,7 @@ fun DetailScreen(
                             exoPlayer = viewModel.exoPlayer,
                             videoUrl = videoUrl,
                             onVideoUrlSet = { viewModel.setVideoUrl(it) },
-                            onClick = { toggleSystemUi() },
+                            onClick = { toggleImmersiveMode() },
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
@@ -208,7 +184,7 @@ fun DetailScreen(
                     }
 
                     AnimatedVisibility(
-                        visible = isSystemUiVisible,
+                        visible = !immersiveMode,
                         enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(300)),
                         exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(300)),
                         modifier = Modifier.align(Alignment.BottomCenter)
