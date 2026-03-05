@@ -31,6 +31,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.filenest.photo.data.model.MediaListItem
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import com.filenest.photo.viewmodel.BrowseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,7 +91,8 @@ fun BrowseScreen(
                                 MediaGridItem(
                                     media = it,
                                     onClick = {
-                                        navController.navigate(Screen.Detail.createRoute(it.id))
+                                        val json = Json.encodeToString(it)
+                                        navController.navigate(Screen.Detail.createRoute(it.id, json))
                                     }
                                 )
                             }

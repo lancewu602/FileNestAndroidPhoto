@@ -1,7 +1,6 @@
 package com.filenest.photo.viewmodel
 
 import android.content.Context
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -9,6 +8,8 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.filenest.photo.data.api.RetrofitClient
 import com.filenest.photo.data.api.isRetOk
+import com.filenest.photo.data.model.MediaDetailItem
+import com.filenest.photo.data.model.MediaListItem
 import com.filenest.photo.data.uistate.DetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,16 +19,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val retrofitClient: RetrofitClient,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val mediaId: Int = savedStateHandle.get<Int>("mediaId") ?: 0
+    private var mediaId: Int = 0
 
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
@@ -51,8 +52,6 @@ class DetailViewModel @Inject constructor(
     private var currentVideoUrl: String? = null
 
     init {
-        loadMediaDetail()
-
         viewModelScope.launch {
             while (isActive) {
                 if (exoPlayer.isPlaying) {
@@ -62,6 +61,40 @@ class DetailViewModel @Inject constructor(
                 delay(500)
             }
         }
+    }
+
+    fun setInitialData(id: Int, jsonData: String) {
+        this.mediaId = id
+        if (jsonData.isNotEmpty()) {
+            try {
+                val mediaListItem = Json.decodeFromString<MediaListItem>(jsonData)
+                val mediaDetail = mediaListItem.toMediaDetailItem()
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    mediaDetail = mediaDetail
+                )
+            } catch (e: Exception) {
+                loadMediaDetail()
+            }
+        } else {
+            loadMediaDetail()
+        }
+    }
+
+    private fun MediaListItem.toMediaDetailItem(): MediaDetailItem {
+        return MediaDetailItem(
+            id = id,
+            type = type,
+            name = name,
+            width = 0,
+            height = 0,
+            duration = duration,
+            durationText = durationText,
+            originalPath = originalPath,
+            previewPath = previewPath,
+            favorite = false,
+            inAlbumIds = emptyList()
+        )
     }
 
     private fun loadMediaDetail() {

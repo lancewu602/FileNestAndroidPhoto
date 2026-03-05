@@ -1,5 +1,8 @@
 package com.filenest.photo.data.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class MediaDetailItem(
     val id: Int = 0,
     val type: String = "", // IMAGE | VIDEO

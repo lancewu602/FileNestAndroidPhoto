@@ -62,8 +62,11 @@ import com.filenest.photo.viewmodel.DetailViewModel
 @SuppressLint("WrongConstant")
 fun DetailScreen(
     navController: NavHostController,
+    mediaId: Int,
+    mediaData: String,
     viewModel: DetailViewModel = hiltViewModel()
 ) {
+    viewModel.setInitialData(mediaId, mediaData)
     val uiState by viewModel.uiState.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
     val currentPosition by viewModel.currentPosition.collectAsState()
