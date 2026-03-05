@@ -1,18 +1,14 @@
 package com.filenest.photo.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.filenest.photo.viewmodel.MainViewModel
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 sealed class Screen(val route: String, val title: String) {
+    data object Welcome : Screen("welcome", "欢迎")
     data object Login : Screen("login", "登录")
     data object Browse : Screen("browse", "浏览")
     data object Album : Screen("album", "相册")
@@ -26,16 +22,26 @@ sealed class Screen(val route: String, val title: String) {
 
 @Composable
 fun MainScreen() {
-    val viewModel: MainViewModel = hiltViewModel()
-    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
     val navController = rememberNavController()
-
-    val startDestination = if (isLoggedIn) Screen.Browse.route else Screen.Login.route
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Screen.Welcome.route
     ) {
+        composable(Screen.Welcome.route) {
+            WelcomeScreen(
+                onNavigateToLogin = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onNavigateToBrowse = {
+                    navController.navigate(Screen.Browse.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(Screen.Login.route) { LoginScreen(navController) }
         composable(Screen.Browse.route) { BrowseScreen(navController) }
         composable(Screen.Album.route) { AlbumScreen(navController) }

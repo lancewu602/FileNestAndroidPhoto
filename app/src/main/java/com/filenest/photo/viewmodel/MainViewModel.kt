@@ -30,10 +30,14 @@ class MainViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _isCheckingAuth = MutableStateFlow(true)
+    val isCheckingAuth: StateFlow<Boolean> = _isCheckingAuth.asStateFlow()
+
     init {
         viewModelScope.launch {
             AppPrefKeys.getServerToken(context).collect { token ->
                 _isLoggedIn.value = token.isNotBlank()
+                _isCheckingAuth.value = false
                 if (token.isNotBlank()) {
                     val storedUrl = AppPrefKeys.getServerUrl(context).first()
                     if (storedUrl.isNotBlank()) {
