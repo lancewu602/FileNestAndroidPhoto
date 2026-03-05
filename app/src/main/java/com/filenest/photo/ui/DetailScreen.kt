@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.PlayArrow
@@ -278,7 +279,7 @@ fun DetailScreen(
                                         imageVector = Icons.Filled.FavoriteBorder,
                                         contentDescription = "收藏",
                                         tint = Color.White,
-                                        modifier = Modifier.size(28.dp)
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
                                 IconButton(onClick = { }) {
@@ -286,7 +287,15 @@ fun DetailScreen(
                                         imageVector = Icons.Filled.PhotoLibrary,
                                         contentDescription = "添加到相册",
                                         tint = Color.White,
-                                        modifier = Modifier.size(28.dp)
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                                IconButton(onClick = { }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Info,
+                                        contentDescription = "详细信息",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
                                 IconButton(onClick = { }) {
@@ -294,7 +303,7 @@ fun DetailScreen(
                                         imageVector = Icons.Filled.Delete,
                                         contentDescription = "删除",
                                         tint = Color.White,
-                                        modifier = Modifier.size(28.dp)
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
                             }
