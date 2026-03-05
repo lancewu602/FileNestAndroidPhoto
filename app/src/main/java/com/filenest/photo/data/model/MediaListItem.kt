@@ -7,5 +7,8 @@ data class MediaListItem(
     val durationText: String = "",
     val sortDate: String = "",
     val sortTime: String = "",
+
     val thumbnailPath: String = "",
+    val previewPath: String = "",
+    val originalPath: String = "",
 )
