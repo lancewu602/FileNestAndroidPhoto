@@ -23,12 +23,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.filenest.photo.ui.components.TextContentPair
 import com.filenest.photo.ui.components.TextContentPairClickable
-import com.filenest.photo.viewmodel.MainViewModel
+import com.filenest.photo.viewmodel.SettingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(navController: NavHostController) {
-    val viewModel: MainViewModel = hiltViewModel()
+    val viewModel: SettingViewModel = hiltViewModel()
     val serverUrl by viewModel.getServerUrl().collectAsState(initial = "")
     val username by viewModel.getUsername().collectAsState(initial = "")
 

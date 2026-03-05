@@ -77,23 +77,4 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-
-    fun logout(onComplete: () -> Unit) {
-        viewModelScope.launch {
-            try {
-                AppPrefKeys.setServerUrl(context, "")
-                AppPrefKeys.setUsername(context, "")
-                AppPrefKeys.setServerToken(context, "")
-                _isLoggedIn.value = false
-                onComplete()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                onComplete()
-            }
-        }
-    }
-
-    fun getServerUrl() = AppPrefKeys.getServerUrl(context)
-
-    fun getUsername() = AppPrefKeys.getUsername(context)
 }
