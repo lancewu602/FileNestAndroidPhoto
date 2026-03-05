@@ -129,6 +129,10 @@ fun DetailScreen(
                 exit = slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(300))
             ) {
                 TopAppBar(
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {},
                     title = { Text("详情", color = Color.White) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Black,
@@ -210,7 +214,12 @@ fun DetailScreen(
                         modifier = Modifier.align(Alignment.BottomCenter)
                     ) {
                         Column(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {}
                         ) {
                             if (media.type == "VIDEO") {
                                 Column(
