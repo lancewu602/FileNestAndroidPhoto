@@ -256,7 +256,7 @@ fun DetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(Color.Black)
-                                    .padding(vertical = 12.dp),
+                                    .padding(vertical = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
                                 IconButton(onClick = { }) {
