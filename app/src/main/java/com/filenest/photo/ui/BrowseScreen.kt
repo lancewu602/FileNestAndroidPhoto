@@ -1,7 +1,6 @@
 package com.filenest.photo.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -30,10 +30,10 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
-import com.filenest.photo.data.model.MediaListItem
+import com.filenest.photo.data.model.MediaDetail
+import com.filenest.photo.viewmodel.BrowseViewModel
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import com.filenest.photo.viewmodel.BrowseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +41,7 @@ fun BrowseScreen(
     navController: NavHostController,
     viewModel: BrowseViewModel = hiltViewModel()
 ) {
-    val pagingItems: LazyPagingItems<MediaListItem> = viewModel.mediaList.collectAsLazyPagingItems()
+    val pagingItems: LazyPagingItems<MediaDetail> = viewModel.mediaList.collectAsLazyPagingItems()
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("浏览") }) },
@@ -117,7 +117,7 @@ fun BrowseScreen(
 
 @Composable
 private fun MediaGridItem(
-    media: MediaListItem,
+    media: MediaDetail,
     onClick: () -> Unit
 ) {
     val thumbnailUrl = "http://172.25.20.10:8916/api/static/media/${media.thumbnailPath}"

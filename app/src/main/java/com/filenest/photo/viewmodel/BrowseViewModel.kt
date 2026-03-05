@@ -7,7 +7,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.filenest.photo.data.api.RetrofitClient
-import com.filenest.photo.data.model.MediaListItem
+import com.filenest.photo.data.model.MediaDetail
 import com.filenest.photo.data.paging.MediaPagingSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +18,7 @@ class BrowseViewModel @Inject constructor(
     private val retrofitClient: RetrofitClient,
 ) : ViewModel() {
 
-    val mediaList: Flow<PagingData<MediaListItem>> = Pager(
+    val mediaList: Flow<PagingData<MediaDetail>> = Pager(
         config = PagingConfig(
             pageSize = 50,
             enablePlaceholders = false,

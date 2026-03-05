@@ -1,9 +1,9 @@
 package com.filenest.photo.data.uistate
 
-import com.filenest.photo.data.model.MediaDetailItem
+import com.filenest.photo.data.model.MediaDetail
 
 data class DetailUiState(
     val isLoading: Boolean = true,
-    val mediaDetail: MediaDetailItem? = null,
+    val mediaDetail: MediaDetail? = null,
     val error: String? = null,
 )

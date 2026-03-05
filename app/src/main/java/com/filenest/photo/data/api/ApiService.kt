@@ -1,7 +1,6 @@
 package com.filenest.photo.data.api
 
-import com.filenest.photo.data.model.MediaDetailItem
-import com.filenest.photo.data.model.MediaListItem
+import com.filenest.photo.data.model.MediaDetail
 import com.filenest.photo.data.model.PageData
 import okhttp3.MultipartBody
 import retrofit2.http.Body
@@ -26,13 +25,7 @@ interface ApiService {
         @Query("albumId") albumId: Int?,
         @Query("pageNum") pageNum: Int,
         @Query("pageSize") pageSize: Int,
-    ): Ret<PageData<MediaListItem>?>
-
-    // 单个媒体文件信息
-    @GET("/api/media/detail")
-    suspend fun fetchMedia(
-        @Query("id") id: Int,
-    ): Ret<MediaDetailItem>
+    ): Ret<PageData<MediaDetail>?>
 
     // 上传图片
     @Multipart

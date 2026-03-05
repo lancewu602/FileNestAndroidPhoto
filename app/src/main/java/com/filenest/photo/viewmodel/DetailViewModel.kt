@@ -7,9 +7,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.filenest.photo.data.api.RetrofitClient
-import com.filenest.photo.data.api.isRetOk
-import com.filenest.photo.data.model.MediaDetailItem
-import com.filenest.photo.data.model.MediaListItem
+import com.filenest.photo.data.model.MediaDetail
 import com.filenest.photo.data.uistate.DetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -67,8 +65,7 @@ class DetailViewModel @Inject constructor(
         this.mediaId = id
         if (jsonData.isNotEmpty()) {
             try {
-                val mediaListItem = Json.decodeFromString<MediaListItem>(jsonData)
-                val mediaDetail = mediaListItem.toMediaDetailItem()
+                val mediaDetail = Json.decodeFromString<MediaDetail>(jsonData)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     mediaDetail = mediaDetail
@@ -81,44 +78,9 @@ class DetailViewModel @Inject constructor(
         }
     }
 
-    private fun MediaListItem.toMediaDetailItem(): MediaDetailItem {
-        return MediaDetailItem(
-            id = id,
-            type = type,
-            name = name,
-            width = 0,
-            height = 0,
-            duration = duration,
-            durationText = durationText,
-            originalPath = originalPath,
-            previewPath = previewPath,
-            favorite = false,
-            inAlbumIds = emptyList()
-        )
-    }
-
     private fun loadMediaDetail() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            try {
-                val response = retrofitClient.getApiService().fetchMedia(mediaId)
-                if (isRetOk(response)) {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        mediaDetail = response.data
-                    )
-                } else {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = response.message
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.localizedMessage ?: "加载失败"
-                )
-            }
         }
     }
 
