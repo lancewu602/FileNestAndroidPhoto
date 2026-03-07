@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,6 +33,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
+import com.filenest.photo.data.model.GalleryItem
 import com.filenest.photo.data.model.MediaDetail
 import com.filenest.photo.viewmodel.BrowseViewModel
 import kotlinx.serialization.encodeToString
@@ -41,7 +45,7 @@ fun BrowseScreen(
     navController: NavHostController,
     viewModel: BrowseViewModel = hiltViewModel()
 ) {
-    val pagingItems: LazyPagingItems<MediaDetail> = viewModel.mediaList.collectAsLazyPagingItems()
+    val pagingItems: LazyPagingItems<GalleryItem> = viewModel.groupedMediaList.collectAsLazyPagingItems()
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("浏览") }) },
@@ -75,43 +79,85 @@ fun BrowseScreen(
                 }
 
                 else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(5),
-                        contentPadding = PaddingValues(1.dp),
-                        horizontalArrangement = Arrangement.spacedBy(1.dp),
-                        verticalArrangement = Arrangement.spacedBy(1.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(
-                            count = pagingItems.itemCount,
-                            key = { index -> "${pagingItems[index]?.id}_$index" }
-                        ) { index ->
-                            val media = pagingItems[index]
-                            media?.let {
-                                MediaGridItem(
-                                    media = it,
-                                    onClick = {
-                                        val json = Json.encodeToString(it)
-                                        navController.navigate(Screen.Detail.createRoute(it.id, json))
-                                    }
-                                )
-                            }
-                        }
-
-                        if (pagingItems.loadState.append is LoadState.Loading) {
-                            item {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-                        }
-                    }
+                    GroupedMediaGrid(
+                        pagingItems = pagingItems,
+                        navController = navController
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun GroupedMediaGrid(
+    pagingItems: LazyPagingItems<GalleryItem>,
+    navController: NavHostController
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(5),
+        contentPadding = PaddingValues(1.dp),
+        horizontalArrangement = Arrangement.spacedBy(1.dp),
+        verticalArrangement = Arrangement.spacedBy(1.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(
+            count = pagingItems.itemCount,
+            key = { index ->
+                when (val item = pagingItems[index]) {
+                    is GalleryItem.DateHeader -> "header_${item.date}_$index"
+                    is GalleryItem.MediaItem -> "${item.media.id}_$index"
+                    null -> "null_$index"
+                }
+            },
+            span = { index ->
+                when (pagingItems[index]) {
+                    is GalleryItem.DateHeader -> GridItemSpan(5)
+                    else -> GridItemSpan(1)
+                }
+            }
+        ) { index ->
+            when (val item = pagingItems[index]) {
+                is GalleryItem.DateHeader -> {
+                    DateHeaderItem(date = item.date)
+                }
+                is GalleryItem.MediaItem -> {
+                    MediaGridItem(
+                        media = item.media,
+                        onClick = {
+                            val json = Json.encodeToString(item.media)
+                            navController.navigate(Screen.Detail.createRoute(item.media.id, json))
+                        }
+                    )
+                }
+                null -> {}
+            }
+        }
+
+        if (pagingItems.loadState.append is LoadState.Loading) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DateHeaderItem(date: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = date,
+            style = MaterialTheme.typography.labelLarge,
+        )
     }
 }
 
