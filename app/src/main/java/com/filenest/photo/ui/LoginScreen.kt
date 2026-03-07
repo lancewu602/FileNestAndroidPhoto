@@ -36,7 +36,7 @@ fun LoginScreen(
 ) {
     val isLoading by viewModel.isLoading.collectAsState()
 
-    var serverUrl by remember { mutableStateOf("http://172.25.20.10:8080") }
+    var serverUrl by remember { mutableStateOf("http://192.168.31.174:8080") }
     var username by remember { mutableStateOf("admin") }
     var password by remember { mutableStateOf("admin") }
 

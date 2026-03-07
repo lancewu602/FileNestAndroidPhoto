@@ -120,7 +120,7 @@ private fun MediaGridItem(
     media: MediaDetail,
     onClick: () -> Unit
 ) {
-    val thumbnailUrl = "http://172.25.20.10:8916/api/static/media/${media.thumbnailPath}"
+    val thumbnailUrl = "http://192.168.31.174:8916/api/static/media/${media.thumbnailPath}"
     Box(
         modifier = Modifier
             .fillMaxSize()
